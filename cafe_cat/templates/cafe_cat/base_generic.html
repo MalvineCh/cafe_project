@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Кафе Кот{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1><a href="{% url 'index' %}">Кафе Кот</a></h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'cafe_cat:index' %}">Главная</a></li>
+                <li><a href="{% url 'cafe_cat:view_cart' %}">Корзина</a></li>
+                <li><a href="{% url 'cafe_cat:checkout' %}">Оформление заказа</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <p>© 2023 Кафе Кот. Все права защищены.</p>
+        <a href="{% url 'cafe_cat:about' %}">О нас</a>
+    </footer>
+</body>
+</html>

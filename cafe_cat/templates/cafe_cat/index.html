@@ -1,0 +1,22 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Домашняя страница - Кафе Кот{% endblock %}
+
+{% block content %}
+    <h2>Добро пожаловать в Кафе Кот!</h2>
+    <p>Уютное место для встречи с друзьями и наслаждения великолепным кофе.</p>
+
+    <div id="featured-products">
+        <h3>Избранные товары</h3>
+        <ul>
+            {% for item in featured_items %}
+                <li>
+                    <img src="{{ item.image_url }}" alt="{{ item.name }}">
+                    <h4>{{ item.name }}</h4>
+                    <p>Цена: {{ item.price }} руб.</p>
+                    <a href="{% url 'cafe_cat:add_to_cart' item.id %}">Добавить в корзину</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
