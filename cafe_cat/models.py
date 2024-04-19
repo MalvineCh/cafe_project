@@ -2,10 +2,10 @@ from django.db import models
 from django.conf import settings
 
 class MenuItem(models.Model):
-    """ Модель элемента меню в ресторане, содержит информацию о блюде. """
-    name = models.CharField(max_length=100, unique=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    summary = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    summary = models.TextField()
+    is_featured = models.BooleanField(default=False)  # Убедитесь, что это поле добавлено
 
     def __str__(self):
         return self.name

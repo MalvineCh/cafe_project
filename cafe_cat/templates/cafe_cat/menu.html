@@ -1,0 +1,22 @@
+{% extends 'cafe_cat/base_generic.html' %}
+
+{% block content %}
+    <h2>Menu</h2>
+    {% if featured_items %}
+        <ul>
+            {% for item in featured_items %}
+                <li>
+                    <h3>{{ item.name }}</h3>
+                    <p>Price: {{ item.price }}</p>
+                    <p>{{ item.summary }}</p>
+                    <form action="{% url 'cafe_cat:add_to_cart' item.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="submit" value="Add to Cart">
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No featured items available.</p>
+    {% endif %}
+{% endblock %}

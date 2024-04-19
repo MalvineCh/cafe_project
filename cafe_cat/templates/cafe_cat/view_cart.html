@@ -1,0 +1,32 @@
+<!-- templates/cafe_cat/view_cart.html -->
+
+{% extends 'cafe_cat/base_generic.html' %}
+
+{% block content %}
+    <h2>Your Cart</h2>
+    {% if cart %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart.items.all %}
+                <tr>
+                    <td>{{ item.item.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.item.price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p>Total: {{ cart.items.all|length }}</p>
+        <a href="{% url 'cafe_cat:checkout' %}">Proceed to Checkout</a>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+{% endblock %}
+
