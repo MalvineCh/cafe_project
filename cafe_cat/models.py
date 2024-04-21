@@ -1,12 +1,24 @@
 from django.db import models
 from django.conf import settings
-
+from decimal import Decimal
 class MenuItem(models.Model):
     name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     summary = models.TextField()
-    is_featured = models.BooleanField(default=False)  # Убедитесь, что это поле добавлено
-
+    is_featured = models.BooleanField(default=False)
+    on_sale = models.BooleanField(default=False)
+    discount = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    sale_price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    def save(self, *args, **kwargs):
+        if self.on_sale:
+            # Применяем скидку, если блюдо находится на распродаже
+            # Здесь можно определить, какую скидку вы хотите применить
+            # Например, снижение цены на 20%
+            self.sale_price = self.price * (1 - self.discount / 100)
+        else:
+            # Если блюдо не находится на распродаже, скидка не применяется
+            self.discount = Decimal('0')
+        super().save(*args, **kwargs)
     def __str__(self):
         return self.name
 

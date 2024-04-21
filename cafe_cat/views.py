@@ -2,41 +2,59 @@ from datetime import timezone, datetime
 
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.db.models import Sum
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
 
+from .forms import UpdateQuantityForm, OrderForm
 from .models import MenuItem, Cart, CartItem, Order, OrderItem
-from django.contrib.auth.decorators import login_required
-
+from django.contrib import messages
 def home(request):
     # Покажем избранные товары на главной странице
     featured_items = MenuItem.objects.filter(is_featured=True)
     return render(request, 'cafe_cat/index.html', {'featured_items': featured_items})
-
-def add_to_cart(request, item_id=None):
-    # Это простое добавление в корзину. Не забудьте реализовать логику для управления сессиями или идентификаторами покупателей
-    if item_id:
-        item = get_object_or_404(MenuItem, pk=item_id)
-        cart, created = Cart.objects.get_or_create(user=request.user, defaults={'created_at': timezone.now()})
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, item=item, defaults={'quantity': 1})
-        if not created:
-            cart_item.quantity += 1
-            cart_item.save()
-        return redirect('cafe_cat:view_cart')
-    return redirect('cafe_cat:menu')
-
 def checkout(request):
-    # Логика оформления заказа
     if request.method == 'POST':
-        cart = get_object_or_404(Cart, user=request.user)
-        order = Order.objects.create(user=request.user)
-        for item in cart.items.all():
-            OrderItem.objects.create(order=order, item=item.item, quantity=item.quantity)
-        cart.delete()
-        return redirect('cafe_cat:order_success', order_id=order.id)
-    return render(request, 'cafe_cat/checkout.html')
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            delivery_address = form.cleaned_data['delivery_address']
+            contact_number = form.cleaned_data['contact_number']
+            menu_items = form.cleaned_data['menu_items']
+
+            # Создаем новый заказ
+            order = Order.objects.create(
+                user=request.user,
+                delivery_address=delivery_address,
+                contact_number=contact_number
+            )
+
+            # Добавляем выбранные блюда в заказ
+            for item_id in menu_items:
+                menu_item = MenuItem.objects.get(pk=item_id)
+                OrderItem.objects.create(order=order, item=menu_item)
+
+            # Очищаем корзину пользователя
+            CartItem.objects.filter(cart__user=request.user).delete()
+
+            messages.success(request, 'Заказ успешно оформлен!')
+            return redirect('cafe_cat:order_success', order_id=order.id)
+    else:
+        # Если метод запроса GET, создаем пустую форму заказа
+        form = OrderForm()
+
+    # Получаем все товары из меню для отображения в форме
+    menu_items = MenuItem.objects.all()
+
+    return render(request, 'cafe_cat/checkout.html', {'form': form, 'menu_items': menu_items})
+
+def place_order(request):
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            # Обработка формы, сохранение заказа и т.д.
+            return redirect('cafe_cat:order_success')  # Перенаправление на страницу успешного заказа
+    else:
+        form = OrderForm()
+    return render(request, 'cafe_cat/place_order.html', {'form': form})
 
 def order_success(request, order_id):
     # Показывает страницу успешного создания заказа
@@ -121,24 +139,35 @@ def add_to_cart(request, item_id=None):
 from django.shortcuts import render
 from .models import CartItem
 
-# cafe_cat/views.py
-
-# cafe_cat/views.py
+from .forms import UpdateQuantityForm
 
 def view_cart(request):
     cart_items = CartItem.objects.filter(cart__user=request.user)
-    total_price = 0
-    for cart_item in cart_items:
-        cart_item.item_total = cart_item.item.price * cart_item.quantity
-        total_price += cart_item.item_total
-    return render(request, 'cafe_cat/view_cart.html', {'cart_items': cart_items, 'total_price': total_price})
+    total_price = sum(cart_item.item.price * cart_item.quantity for cart_item in cart_items)
+    total_quantity = sum(cart_item.quantity for cart_item in cart_items)
+    update_forms = {str(cart_item.id): UpdateQuantityForm(instance=cart_item) for cart_item in cart_items}
+    return render(request, 'cafe_cat/view_cart.html', {'cart_items': cart_items, 'total_price': total_price,
+                                                       'total_quantity': total_quantity, 'update_forms': update_forms})
+def remove_selected(request):
+    if request.method == 'POST':
+        selected_items = request.POST.getlist('selected_items')
+        CartItem.objects.filter(id__in=selected_items).delete()
+        return redirect('cafe_cat:view_cart')
+    return JsonResponse({'status': 'error'})
+def place_order_selected(request):
+    if request.method == 'POST':
+        selected_items = request.POST.getlist('selected_items')
+        items_to_order = CartItem.objects.filter(id__in=selected_items)
+        order = Order.objects.create(user=request.user)
+        for item in items_to_order:
+            OrderItem.objects.create(order=order, item=item.item, quantity=item.quantity)
+        items_to_order.delete()  # Remove items from cart after placing order
+    return redirect('cafe_cat:view_cart')
 
-def remove_from_cart(request, cart_item_id):
-    # Получаем объект товара в корзине по его идентификатору
+def update_quantity(request, cart_item_id):
     cart_item = get_object_or_404(CartItem, pk=cart_item_id)
-
-    # Удаляем товар из корзины
-    cart_item.delete()
-
-    # Перенаправляем пользователя на страницу просмотра корзины
+    if request.method == 'POST':
+        form = UpdateQuantityForm(request.POST, instance=cart_item)
+        if form.is_valid():
+            form.save()
     return redirect('cafe_cat:view_cart')

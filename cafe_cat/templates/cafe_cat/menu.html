@@ -7,7 +7,11 @@
         {% for item in items %}
             <li class="{% if item.is_featured %}featured{% endif %}">
             <h3>{{ item.name }}</h3>
-            <p>Цена: {{ item.price }}</p>
+            {% if item.on_sale %}
+                <p>Цена: <del>{{ item.price }}</del> {{ item.sale_price }}</p>
+            {% else %}
+                <p>Цена: {{ item.price }}</p>
+            {% endif %}
             <p>{{ item.description }}</p>
             <form action="{% url 'cafe_cat:add_to_cart' item.id %}" method="post">
                     {% csrf_token %}

@@ -16,5 +16,8 @@ urlpatterns = [
     path('register/', views.register, name='register'),  # URL-адрес для страницы регистрации
     path('login/', views.user_login, name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('remove_from_cart/<int:cart_item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('remove_selected/', views.remove_selected, name='remove_selected'),
+    path('place_order_selected/', views.place_order_selected, name='place_order_selected'),
+    path('update_quantity/<int:cart_item_id>/', views.update_quantity, name='update_quantity'),
+    path('place_order/', views.place_order, name='place_order'),
 ]
