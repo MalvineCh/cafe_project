@@ -2,7 +2,7 @@
 
 from django.urls import path
 from . import views
-
+from django.contrib.auth import views as auth_views
 app_name = 'cafe_cat'
 
 urlpatterns = [
@@ -13,6 +13,8 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('order_success/<int:order_id>/', views.order_success, name='order_success'),
     path('account/', views.account, name='account'),  # URL-адрес для страницы аккаунта
-    path('login/', views.login, name='login'),  # URL-адрес для страницы входа
     path('register/', views.register, name='register'),  # URL-адрес для страницы регистрации
+    path('login/', views.user_login, name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('remove_from_cart/<int:cart_item_id>/', views.remove_from_cart, name='remove_from_cart'),
 ]

@@ -14,7 +14,12 @@
                 <li><a href="{% url 'cafe_cat:index' %}">Главная</a></li>
                 <li><a href="{% url 'cafe_cat:view_cart' %}">Корзина</a></li>
                 <li><a href="{% url 'cafe_cat:checkout' %}">Оформление заказа</a></li>
-
+                {% if user.is_authenticated %}
+                    <p>Account: <a href="{% url 'cafe_cat:account' %}">Account</a></p>
+                {% else %}
+                    <p>Login: <a href="{% url 'cafe_cat:login' %}">Login</a></p>
+                    <p>Register: <a href="{% url 'cafe_cat:register' %}">Register</a></p>
+                {% endif %}
                 <li><a href="{% url 'cafe_cat:menu' %}">Меню</a></li>
             </ul>
         </nav>
