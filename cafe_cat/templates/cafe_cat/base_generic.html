@@ -13,6 +13,7 @@
             <ul>
                 <li><a href="{% url 'cafe_cat:view_cart' %}">Корзина</a></li>
                 <li><a href="{% url 'cafe_cat:checkout' %}">Доставка</a></li>
+                <li><a href="{% url 'cafe_cat:checkout' %}">Заказы</a></li>
                 <li><a href="{% url 'cafe_cat:menu' %}">Меню</a></li>
                 {% if user.is_authenticated %}
                     <p>Account: <a href="{% url 'cafe_cat:account' %}">Account</a></p>

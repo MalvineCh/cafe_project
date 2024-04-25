@@ -18,8 +18,8 @@ class MenuItemAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    readonly_fields = ('date_created',)
-    list_display = ('id', 'date_created', 'user')
+    readonly_fields = ('created_at',)
+    list_display = ('id', 'user', 'full_name', 'phone_number', 'address', 'created_at')
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
@@ -48,3 +48,4 @@ class CartItemAdmin(admin.ModelAdmin):
             messages.success(request, f"Order #{order.id} was successfully created from cart item.")
 
     create_order_from_cartitem.short_description = "Create Order from Selected Cart Items"
+

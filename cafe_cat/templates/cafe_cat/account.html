@@ -12,6 +12,15 @@
     <h2>Добро пожаловать в ваш аккаунт!</h2>
     <!-- Здесь можно добавить дополнительный контент для страницы аккаунта -->
     {% if user.is_authenticated %}
+        <p>Логин: {{ user.username }}</p>
+        <p>Email: {{ user.email }}</p>
+        <p>Карта лояльности: {{ user.profile.loyalty_card }}</p>
+        <form action="{% url 'cafe_cat:profile_update' %}" method="post">
+            {% csrf_token %}
+            <label for="birthday">День рождения:</label><br>
+            <input type="date" id="birthday" name="birthday" value="{{ user.profile.birthday|date:'Y-m-d' }}"><br><br>
+            <button type="submit">Обновить информацию</button>
+        </form>
         <form action="{% url 'cafe_cat:logout' %}" method="post">
             {% csrf_token %}
             <button type="submit">Выход</button>
