@@ -1,0 +1,20 @@
+{% extends 'cafe_cat/base_generic.html' %}
+
+{% block title %}Order Detail{% endblock %}
+
+{% block content %}
+  <h1>Order Details</h1>
+  <p>Order ID: {{ order.id }}</p>
+  <p>Customer: {{ order.user }}</p>
+  <p>Delivery Address: {{ order.address }}</p>
+  <p>Contact Number: {{ order.phone_number }}</p>
+  <p>Order Date: {{ order.created_at }}</p>
+  <p>Status: {{ order.status }}</p>
+
+  <h2>Order Items:</h2>
+  <ul>
+    {% for order_item in order_items %}
+      <li>{{ order_item.item.name }} - Quantity: {{ order_item.quantity }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

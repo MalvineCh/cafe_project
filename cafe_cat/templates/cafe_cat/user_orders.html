@@ -1,0 +1,30 @@
+{% extends 'cafe_cat/base_generic.html' %}
+
+{% block title %}Your Orders{% endblock %}
+
+{% block content %}
+    <h1>Your Orders</h1>
+    {% if orders %}
+        <ul>
+            {% for order in orders %}
+                <li>
+                    <h2>Заказ:</h2>
+                    <p>Номер: {{ order.id }}</p>
+                    <p>Имя заказчика: {{ order.full_name }}</p>
+                    <p>Создан: {{ order.created_at }}</p>
+                    <p>Статус: {{ order.status }}</p>
+                    <form method="post" action="{% url 'cafe_cat:delete_order' order.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Удалить</button>
+                    </form>
+                    <form method="post" action="{% url 'cafe_cat:order_detail' order_id=order.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Детали</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No orders available.</p>
+    {% endif %}
+{% endblock %}

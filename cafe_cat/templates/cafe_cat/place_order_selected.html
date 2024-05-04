@@ -1,22 +1,38 @@
-<!-- place_order_selected.html -->
 {% extends 'cafe_cat/base_generic.html' %}
-{% block title %}Place Order{% endblock %}
+
+{% block title %}Place Your Order{% endblock %}
+
 {% block content %}
-    <h1>Place Your Order</h1>
-    <p>Items in your cart:</p>
+    <h1>Сделайте ваш заказ</h1>
+    <p>Товары в заказе:</p>
     <ul>
-        {% for cart_item in cart_items %}
-            <li>{{ cart_item.quantity }} x {{ cart_item.item.name }} - {{ cart_item.item.price }}</li>
+        {% for cart_item in selected_cart_items %}
+            <li>{{ cart_item.quantity }} x {{ cart_item.item.name }} - {{ cart_item.total_item }}</li>
+            <!-- Выводим цену для каждого элемента с учетом наличия скидки -->
+            <li>
+                {% if cart_item.item.on_sale %}
+                    Price with discount: {{ cart_item.item.sale_price }}
+                {% else %}
+                    Price: {{ cart_item.item.price }}
+                {% endif %}
+            </li>
         {% endfor %}
+        <!-- Выводим общую сумму заказа -->
+        <li>Total: {{ total_price }}</li>
     </ul>
-    <form method="post">
+    <form method="post" action="{% url 'cafe_cat:place_order_selected' %}">
         {% csrf_token %}
-        <label for="id_full_name">Full Name:</label><br>
+        <label for="id_full_name">Полное имя:</label><br>
         <input type="text" id="id_full_name" name="full_name"><br>
-        <label for="id_phone_number">Phone Number:</label><br>
-        <input type="text" id="id_phone_number" name="phone_number"><br>
-        <label for="id_address">Address:</label><br>
-        <textarea id="id_address" name="address"></textarea><br>
-        <button type="submit">Place Order</button>
+        <label for="id_address">Адрес доставки:</label><br>
+        <input type="text" id="id_address" name="address" required><br>
+        <label for="id_phone_number">Контактный номер:</label><br>
+        <input type="text" id="id_phone_number" name="phone_number" required><br>
+        <!-- Добавляем скрытое поле для передачи выбранных товаров -->
+        {% for cart_item in selected_cart_items %}
+            <input type="hidden" name="selected_items" value="{{ cart_item.id }}" {% if cart_item.selected %}selected{% endif %}>
+        {% endfor %}
+        <button type="submit">Сделать заказ</button>
     </form>
+
 {% endblock %}

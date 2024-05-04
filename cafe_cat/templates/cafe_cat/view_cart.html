@@ -1,9 +1,9 @@
 {% extends 'cafe_cat/base_generic.html' %}
 
-{% block title %}Ваша корзина{% endblock %}
+{% block title %}Your Cart{% endblock %}
 
 {% block content %}
-    <h2>Ваша корзина</h2>
+    <h2>Your Cart</h2>
     {% if cart_items %}
         <form id="cart_form" action="{% url 'cafe_cat:remove_selected' %}" method="post">
             {% csrf_token %}
@@ -13,15 +13,14 @@
                         <th>Выбрать</th>
                         <th>Товар</th>
                         <th>Количество</th>
-                        <th>Цена</th>
-                        <th>Всего</th>
+                        <th>Сумма</th>
+                        <th>Итого</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for cart_item in cart_items %}
                     <tr>
-                        <!-- Изменим условие для установки атрибута selected -->
-                        <td><input type="checkbox" name="selected_items" value="{{ cart_item.id }}" {% if cart_item.selected %}checked{% endif %}></td>
+                        <td><input type="checkbox" name="selected_items" value="{{ cart_item.id }}"></td>
                         <td>{{ cart_item.item.name }}</td>
                         <td>{{ cart_item.quantity }}</td>
                         <td>
@@ -36,18 +35,18 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <p>Общее количество: {{ total_quantity }}</p>
-            <p>Общая цена: {{ total_price }}</p>
-            <!-- Поле для передачи выбранных товаров -->
+            <p>Итоговое количество: {{ total_quantity }}</p>
+            <p>Итого: {{ total_price }}</p>
+            <button type="submit">Удалить выделенное</button>
+            <button type="submit" formaction="{% url 'cafe_cat:place_order_selected' %}">Разместить заказ</button>
+            <!-- Добавляем скрытое поле для передачи выделенных товаров -->
             {% for cart_item in cart_items %}
                 {% if cart_item.selected %}
-                    <input type="hidden" name="menu_items" value="{{ cart_item.id }}">
+                    <input type="hidden" name="selected_items" value="{{ cart_item.id }}">
                 {% endif %}
             {% endfor %}
-            <button type="submit">Удалить выбранные</button>
-            <button type="submit" formaction="{% url 'cafe_cat:place_order_selected' %}">Оформить заказ</button>
         </form>
     {% else %}
-        <p>Ваша корзина пуста.</p>
+        <p>Your cart is empty.</p>
     {% endif %}
 {% endblock %}

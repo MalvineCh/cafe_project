@@ -3,7 +3,7 @@ from datetime import timezone, datetime
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import UpdateQuantityForm, OrderForm, ProfileUpdateForm
@@ -180,8 +180,6 @@ def add_to_cart(request, item_id=None):
             cart_item.save()
 
         if request.user.is_authenticated:
-            return redirect('cafe_cat:view_cart')
-        else:
             return redirect('cafe_cat:menu')
     return redirect('cafe_cat:menu')
 
@@ -207,10 +205,20 @@ def view_cart(request):
     cart_items = CartItem.objects.filter(cart=cart)
 
     # Вычисляем общую стоимость и количество элементов в корзине
-    total_price = sum(cart_item.item.price * cart_item.quantity for cart_item in cart_items)
-    total_quantity = sum(cart_item.quantity for cart_item in cart_items)
+    total_price = 0
     for cart_item in cart_items:
-        cart_item.total_item = cart_item.item.price * cart_item.quantity
+        if cart_item.item.on_sale:
+            total_price += cart_item.item.sale_price * cart_item.quantity
+        else:
+            total_price += cart_item.item.price * cart_item.quantity
+    total_quantity = sum(cart_item.quantity for cart_item in cart_items)
+
+
+    for cart_item in cart_items:
+        if cart_item.item.on_sale:
+            cart_item.total_item = cart_item.item.sale_price * cart_item.quantity
+        else:
+            cart_item.total_item = cart_item.item.price * cart_item.quantity
     # Создаем словарь форм обновления количества для каждого элемента корзины
     update_forms = {str(cart_item.id): UpdateQuantityForm(instance=cart_item) for cart_item in cart_items}
 
@@ -229,50 +237,48 @@ def remove_selected(request):
         return redirect('cafe_cat:view_cart')
     return JsonResponse({'status': 'error'})
 
-from django.shortcuts import render, redirect
+from decimal import Decimal
+
 from django.contrib.auth.decorators import login_required
-from .models import CartItem, Order
+from .models import Cart, CartItem, Order, OrderItem
 from .forms import OrderForm
+from decimal import Decimal
+from django.shortcuts import render, redirect
 
 @login_required
 def place_order_selected(request):
-    # Получаем текущего пользователя
     user = request.user
+    cart, created = Cart.objects.get_or_create(user=user)
+    selected_item_ids = request.POST.getlist('selected_items')
 
-    # Получаем или создаем корзину для пользователя
-    cart, _ = Cart.objects.get_or_create(user=user)
-
-    # Получаем все элементы корзины
-    cart_items = CartItem.objects.filter(cart=cart)
-
-    # По умолчанию список выбранных товаров пуст
-    selected_items = []
+    selected_cart_items = CartItem.objects.filter(id__in=selected_item_ids, cart=cart)
+    total_price = Decimal('0.00')
+    for cart_item in selected_cart_items:
+        if cart_item.item.on_sale:
+            total_price += cart_item.item.sale_price * cart_item.quantity
+        else:
+            total_price += cart_item.item.price * cart_item.quantity
 
     if request.method == 'POST':
-        # Если запрос POST, получаем выбранные товары из формы
-        selected_items = request.POST.getlist('selected_items')
+        print(CartItem.objects.filter(id__in=selected_item_ids, cart=cart))
         form = OrderForm(request.POST)
         if form.is_valid():
-            # Создаем заказ
             order = form.save(commit=False)
             order.user = user
             order.save()
-
-            # Добавляем в заказ только выбранные товары
-            for item_id in selected_items:
-                cart_item = CartItem.objects.get(pk=item_id)
+            for cart_item in selected_cart_items:
                 OrderItem.objects.create(order=order, item=cart_item.item, quantity=cart_item.quantity)
-
-            # Удаляем выбранные товары из корзины
-            cart_items.filter(id__in=selected_items).delete()
-
-            # Перенаправляем пользователя на страницу успешного оформления заказа
-            return redirect('cafe_cat:order_success', order_id=order.id)
+            selected_cart_items.delete()
+            return redirect('cafe_cat:user_orders')
     else:
-        form = OrderForm()
-
-    return render(request, 'cafe_cat/place_order_selected.html', {'form': form, 'cart_items': cart_items})
-
+        form = OrderForm(initial={'menu_items': selected_cart_items})
+    if not selected_item_ids:
+        return redirect('cafe_cat:view_cart')
+    return render(request, 'cafe_cat/place_order_selected.html', {
+        'form': form,
+        'selected_cart_items': selected_cart_items,
+        'total_price': total_price
+    })
 
 
 
@@ -284,3 +290,33 @@ def update_quantity(request, cart_item_id):
         if form.is_valid():
             form.save()
     return redirect('cafe_cat:view_cart')
+
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Order
+
+@login_required
+def user_orders(request):
+    user = request.user
+    orders = Order.objects.filter(user=user)
+    return render(request, 'cafe_cat/user_orders.html', {'orders': orders})
+@login_required
+def delete_order(request, order_id):
+    try:
+        order = Order.objects.get(pk=order_id)
+        if order.user == request.user:
+            order.delete()
+            return redirect('cafe_cat:user_orders')
+        else:
+            return HttpResponse("You are not authorized to delete this order.")
+    except Order.DoesNotExist:
+        return HttpResponse("Order does not exist.")
+
+from django.shortcuts import render, get_object_or_404
+from .models import Order, OrderItem
+
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    order_items = OrderItem.objects.filter(order=order)
+    return render(request, 'cafe_cat/order_detail.html', {'order': order, 'order_items': order_items})

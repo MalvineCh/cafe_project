@@ -62,14 +62,14 @@ class Order(models.Model):
     phone_number = models.CharField(max_length=20, default='')  # Значение по умолчанию задаем здесь
     address = models.CharField(max_length=255, null=True)
     created_at = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=100, default='Pending')  # Add status field with default value
 
     def save(self, *args, **kwargs):
         if not self.id:
             self.created_at = timezone.now()
         return super(Order, self).save(*args, **kwargs)
 
-    def __str__(self):
-        return f"Order #{self.id} by {self.user.username}"
+
     def __str__(self):
         return f"Order #{self.id} by {self.user.username}"
 

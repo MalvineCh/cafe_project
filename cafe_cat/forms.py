@@ -14,13 +14,13 @@ from django import forms
 from .models import CartItem
 
 class OrderForm(forms.ModelForm):
-    delivery_address = forms.CharField(label='Адрес доставки', max_length=100)
-    contact_number = forms.CharField(label='Контактный номер', max_length=20)
-    menu_items = forms.ModelMultipleChoiceField(queryset=CartItem.objects.none(), widget=forms.CheckboxSelectMultiple, required=True)
+    address = forms.CharField(label='Delivery address', max_length=100, required=True)
+    phone_number = forms.CharField(label='Phone number', max_length=20, required=True)
+    full_name = forms.CharField(label='Full name', max_length=100, required=True)
 
     class Meta:
         model = Order
-        fields = ['delivery_address', 'contact_number', 'menu_items']
+        fields = ['address', 'phone_number', 'full_name']
 
 from .models import Profile
 
