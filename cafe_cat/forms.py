@@ -17,10 +17,10 @@ class OrderForm(forms.ModelForm):
     address = forms.CharField(label='Delivery address', max_length=100, required=True)
     phone_number = forms.CharField(label='Phone number', max_length=20, required=True)
     full_name = forms.CharField(label='Full name', max_length=100, required=True)
-
+    use_points = forms.BooleanField(label='Использовать баллы лояльности', required=False)
     class Meta:
         model = Order
-        fields = ['address', 'phone_number', 'full_name']
+        fields = ['address', 'phone_number', 'full_name', 'use_points']
 
 from .models import Profile
 

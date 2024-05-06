@@ -1,12 +1,16 @@
 {% extends 'cafe_cat/base_generic.html' %}
 
 {% block content %}
+{% load static %}
     <h2>Меню</h2>
     {% if items %}
         <ul>
             {% for item in items %}
                 <li class="{% if item.is_featured %}featured{% endif %}">
                     <h3>{{ item.name }}</h3>
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}" width="300" height="200">
+                    {% endif %}
                     {% if item.on_sale %}
                         <p>Цена: <del>{{ item.price }}</del> {{ item.sale_price }}</p>
                     {% else %}

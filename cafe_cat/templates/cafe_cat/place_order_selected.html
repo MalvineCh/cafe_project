@@ -1,26 +1,30 @@
 {% extends 'cafe_cat/base_generic.html' %}
 
-{% block title %}Place Your Order{% endblock %}
+{% block title %}Оформление заказа{% endblock %}
 
 {% block content %}
-    <h1>Сделайте ваш заказ</h1>
+    <h1>Оформите ваш заказ</h1>
     <p>Товары в заказе:</p>
     <ul>
         {% for cart_item in selected_cart_items %}
-            <li>{{ cart_item.quantity }} x {{ cart_item.item.name }} - {{ cart_item.total_item }}</li>
-            <!-- Выводим цену для каждого элемента с учетом наличия скидки -->
-            <li>
+            <li>{{ cart_item.quantity }} x {{ cart_item.item.name }} -
                 {% if cart_item.item.on_sale %}
-                    Price with discount: {{ cart_item.item.sale_price }}
+                    Цена со скидкой: {{ cart_item.item.sale_price }} руб.
                 {% else %}
-                    Price: {{ cart_item.item.price }}
+                    Цена: {{ cart_item.item.price }} руб.
                 {% endif %}
+                {{ cart_item.total_price_of_item }}
             </li>
         {% endfor %}
         <!-- Выводим общую сумму заказа -->
-        <li>Total: {{ total_price }}</li>
+        <li>Итого: <span id="total_price">{{ total_price }}</span> руб.</li>
+        <!-- Выводим информацию о баллах лояльности -->
+        <li id="loyalty_points_info">Доступно баллов: {{ loyalty_points }}</li>
+        <!-- Выводим сообщение о недостаточном количестве баллов -->
+        <li id="not_enough_points" style="display: none;">Баллов недостаточно</li>
     </ul>
-    <form method="post" action="{% url 'cafe_cat:place_order_selected' %}">
+
+    <form id="order_form" method="post" action="{% url 'cafe_cat:place_order_selected' %}">
         {% csrf_token %}
         <label for="id_full_name">Полное имя:</label><br>
         <input type="text" id="id_full_name" name="full_name"><br>
@@ -30,9 +34,81 @@
         <input type="text" id="id_phone_number" name="phone_number" required><br>
         <!-- Добавляем скрытое поле для передачи выбранных товаров -->
         {% for cart_item in selected_cart_items %}
-            <input type="hidden" name="selected_items" value="{{ cart_item.id }}" {% if cart_item.selected %}selected{% endif %}>
+            <input type="hidden" name="selected_items" value="{{ cart_item.id }}">
         {% endfor %}
-        <button type="submit">Сделать заказ</button>
+        <!-- Добавляем чекбокс для использования баллов лояльности -->
+        <label for="use_points">Использовать баллы лояльности:</label><br>
+        <input type="checkbox" id="use_points" name="use_points" {% if loyalty_points > 0 %} checked {% endif %}><br>
+        <button type="submit" id="submit_button">Сделать заказ</button>
     </form>
 
+    <script>
+        // Получаем элементы из DOM
+        const usePointsCheckbox = document.getElementById('use_points');
+        const loyaltyPointsInfo = document.getElementById('loyalty_points_info');
+        const notEnoughPointsMessage = document.getElementById('not_enough_points');
+        const orderForm = document.getElementById('order_form');
+        const submitButton = document.getElementById('submit_button');
+        const totalPriceElement = document.getElementById('total_price');
+
+        // Обновляем информацию о сумме с учетом баллов лояльности
+        function updateTotalPriceWithPoints() {
+            const totalPrice = parseFloat("{{ total_price }}");
+            const loyaltyPoints = parseFloat(document.getElementById('loyalty_points_info').innerText.split(': ')[1]);
+            if (usePointsCheckbox.checked && loyaltyPoints > 0) {
+                const pointsToDeduct = Math.min(loyaltyPoints, totalPrice);
+                totalPriceElement.textContent = (totalPrice - pointsToDeduct).toFixed(2);
+            } else {
+                totalPriceElement.textContent = totalPrice.toFixed(2);
+            }
+        }
+
+        // Слушаем изменения состояния чекбокса
+        usePointsCheckbox.addEventListener('change', function() {
+            updateTotalPriceWithPoints();
+        });
+
+        // Инициализируем информацию о сумме с учетом баллов лояльности
+        updateTotalPriceWithPoints();
+
+        // Слушаем отправку формы
+        orderForm.addEventListener('submit', function(event) {
+            // Если чекбокс отмечен, снимаем со счета баллы, если их хватает
+            if (usePointsCheckbox.checked) {
+                const loyaltyPoints = parseFloat(document.getElementById('loyalty_points_info').innerText.split(': ')[1]);
+                const totalPrice = parseFloat(totalPriceElement.textContent);
+                if (loyaltyPoints >= 0) {
+                    const form = new FormData(orderForm);
+                    form.append('loyalty_points', loyaltyPoints);
+                    fetch('{% url 'cafe_cat:place_order_selected' %}', {
+                        method: 'POST',
+                        body: form,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Перенаправление на страницу заказов пользователя
+                        window.location.href = "{% url 'cafe_cat:user_orders' %}";
+                    })
+                    .catch(error => {
+                        console.error('There was an error with the fetch operation:', error);
+                    });
+                    event.preventDefault();
+                } else {
+                    notEnoughPointsMessage.style.display = 'block';
+                    event.preventDefault();
+                }
+            }
+            window.location.href = "{% url 'cafe_cat:user_orders' %}";
+
+        });
+
+    </script>
 {% endblock %}

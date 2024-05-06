@@ -1,14 +1,10 @@
-from datetime import timezone, datetime
-
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponse
+from .forms import ProfileUpdateForm, UpdateQuantityForm
+from .models import Profile, LoyaltyCard
 
-from .forms import UpdateQuantityForm, OrderForm, ProfileUpdateForm
-from .models import MenuItem, Cart, CartItem, Order, OrderItem, Profile
-from django.contrib import messages
 def home(request):
     # Покажем избранные товары на главной странице
     featured_items = MenuItem.objects.filter(is_featured=True)
@@ -73,11 +69,21 @@ def menu(request):
 def account(request):
     # Получение пользователя из запроса
     user = request.user
+    # Получение профиля пользователя или создание нового, если его нет
+    profile, created = Profile.objects.get_or_create(user=user)
 
-    # Если метод запроса POST, значит пользователь отправил форму для обновления дня рождения
+    if profile.loyalty_card:
+        loyalty_card = profile.loyalty_card
+    else:
+        # Если карта лояльности отсутствует, создаем ее для пользователя
+        loyalty_card = LoyaltyCard.objects.create(user=user)
+        # Привязываем созданную карту лояльности к профилю пользователя
+        profile.loyalty_card = loyalty_card
+        profile.save()
+    # Обработка POST-запроса для обновления профиля
     if request.method == 'POST':
         # Создание формы для обновления профиля с переданными данными из запроса
-        form = ProfileUpdateForm(request.POST, instance=request.user.profile)
+        form = ProfileUpdateForm(request.POST, instance=profile)
         # Проверка валидности формы
         if form.is_valid():
             # Сохранение данных профиля
@@ -86,11 +92,12 @@ def account(request):
             return redirect('cafe_cat:account')
     else:
         # Если метод запроса GET, создаем форму для обновления профиля с текущими данными пользователя
-        form = ProfileUpdateForm(instance=request.user.profile)
+        form = ProfileUpdateForm(instance=profile)
 
-    # Возвращаем HTML-страницу с контекстом, включающим пользователя и форму для обновления профиля
-    return render(request, 'cafe_cat/account.html', {'user': user, 'form': form})
+    # Получаем объект карты лояльности пользователя, если он существует
 
+    # Возвращаем HTML-страницу с контекстом, включающим пользователя, форму для обновления профиля и количество баллов на карте лояльности
+    return render(request, 'cafe_cat/account.html', {'user': user, 'form': form, 'loyalty_card_points': loyalty_card.points})
 def profile_update(request):
     user = request.user
     try:
@@ -106,6 +113,8 @@ def profile_update(request):
     else:
         form = ProfileUpdateForm(instance=profile)
     return render(request, 'cafe_cat/profile_update.html', {'form': form})
+
+
 def login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, request.POST)
@@ -125,14 +134,12 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            LoyaltyCard.objects.create(user=user)
             login(request, user)  # Убедитесь, что здесь вызывается login только с объектом запроса
             return redirect('cafe_cat')
     else:
         form = UserCreationForm()
     return render(request, 'cafe_cat/register.html', {'form': form})
-def account(request):
-    # Логика для страницы аккаунта
-    return render(request, 'cafe_cat/account.html')
 
 def user_login(request):
     if request.method == 'POST':
@@ -148,77 +155,65 @@ def user_login(request):
         form = AuthenticationForm()
     return render(request, 'cafe_cat/login.html', {'form': form})
 
-from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.core.exceptions import MultipleObjectsReturned
+from .models import Cart, MenuItem, CartItem
 
-from django.shortcuts import redirect, get_object_or_404
-from .models import MenuItem, Cart, CartItem
+def add_to_cart(request, item_id):
+    print("Adding item to cart...")
 
-from django.contrib.sessions.models import Session
+    # Получаем элемент меню, который пользователь хочет добавить в корзину
+    menu_item = get_object_or_404(MenuItem, pk=item_id)
+    print("Menu item:", menu_item)
 
-def add_to_cart(request, item_id=None):
-    if item_id:
-        item = get_object_or_404(MenuItem, pk=item_id)
-
-        if request.user.is_authenticated:
-            user = request.user
-            cart, created = Cart.objects.get_or_create(user=user)
+    # Попытка получить корзину пользователя
+    user_cart = None
+    if request.user.is_authenticated:
+        user_cart, created = Cart.objects.get_or_create(user=request.user)
+    else:
+        session_key = request.session.session_key
+        carts = Cart.objects.filter(session_key=session_key)
+        if carts.exists():
+            user_cart = carts.first()
         else:
-            # Создаем сеанс, если он еще не существует
-            if not request.session.session_key:
-                request.session.create()
-            session = Session.objects.get(session_key=request.session.session_key)
-            cart, created = Cart.objects.get_or_create(session=session)
+            user_cart = Cart.objects.create(session_key=session_key)
 
-        quantity = int(request.POST.get('quantity', 1))
-        cart_item, created = CartItem.objects.get_or_create(
-            cart=cart,
-            item=item,
-            defaults={'quantity': quantity}
-        )
-        if not created:
-            cart_item.quantity += quantity
-            cart_item.save()
+    # Пытаемся получить элемент корзины для данного блюда и данной корзины
+    try:
+        cart_item = CartItem.objects.get(cart=user_cart, item=menu_item)
+        cart_item.quantity += 1  # Увеличиваем количество товара на 1
+        cart_item.save()
+        print("Existing cart item:", cart_item)
+    except CartItem.DoesNotExist:
+        # Если элемента корзины нет, создаем новый
+        cart_item = CartItem.objects.create(cart=user_cart, item=menu_item, quantity=1)
+        print("New cart item:", cart_item)
 
-        if request.user.is_authenticated:
-            return redirect('cafe_cat:menu')
+    print("Item added to cart successfully.")
+
     return redirect('cafe_cat:menu')
 
-
-from django.shortcuts import render
-from .models import CartItem
-
-from .forms import UpdateQuantityForm
-
 def view_cart(request):
-    # Получаем текущего пользователя
-    user = request.user
-
-    # Проверяем, аутентифицирован ли пользователь
-    if user.is_authenticated:
-        # Получаем или создаем корзину пользователя
-        cart, created = Cart.objects.get_or_create(user=user)
+    # Попытка получить корзину пользователя
+    user_cart = None
+    if request.user.is_authenticated:
+        user_cart, created = Cart.objects.get_or_create(user=request.user)
     else:
-        # Если пользователь не аутентифицирован, создаем корзину без привязки к пользователю
-        cart, created = Cart.objects.get_or_create()
+        session_key = request.session.session_key
+        carts = Cart.objects.filter(session_key=session_key)
+        if carts.exists():
+            user_cart = carts.first()
+        else:
+            user_cart = Cart.objects.create(session_key=session_key)
 
-    # Получаем все элементы корзины для текущего пользователя
-    cart_items = CartItem.objects.filter(cart=cart)
+    # Получаем все элементы корзины для данной корзины
+    cart_items = CartItem.objects.filter(cart=user_cart)
 
     # Вычисляем общую стоимость и количество элементов в корзине
-    total_price = 0
-    for cart_item in cart_items:
-        if cart_item.item.on_sale:
-            total_price += cart_item.item.sale_price * cart_item.quantity
-        else:
-            total_price += cart_item.item.price * cart_item.quantity
+    total_price = sum(cart_item.item.sale_price * cart_item.quantity if cart_item.item.on_sale else cart_item.item.price * cart_item.quantity for cart_item in cart_items)
     total_quantity = sum(cart_item.quantity for cart_item in cart_items)
 
-
-    for cart_item in cart_items:
-        if cart_item.item.on_sale:
-            cart_item.total_item = cart_item.item.sale_price * cart_item.quantity
-        else:
-            cart_item.total_item = cart_item.item.price * cart_item.quantity
     # Создаем словарь форм обновления количества для каждого элемента корзины
     update_forms = {str(cart_item.id): UpdateQuantityForm(instance=cart_item) for cart_item in cart_items}
 
@@ -229,7 +224,6 @@ def view_cart(request):
         'total_quantity': total_quantity,
         'update_forms': update_forms
     })
-
 def remove_selected(request):
     if request.method == 'POST':
         selected_items = request.POST.getlist('selected_items')
@@ -237,50 +231,80 @@ def remove_selected(request):
         return redirect('cafe_cat:view_cart')
     return JsonResponse({'status': 'error'})
 
-from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
-from .models import Cart, CartItem, Order, OrderItem
+from .models import Cart, CartItem
 from .forms import OrderForm
-from decimal import Decimal
-from django.shortcuts import render, redirect
 
-@login_required
+
+@login_required(login_url='/cafe_cat/login/')
 def place_order_selected(request):
     user = request.user
+    # Получение или создание корзины для пользователя
     cart, created = Cart.objects.get_or_create(user=user)
-    selected_item_ids = request.POST.getlist('selected_items')
+    # При методе POST находим выбранные товары
+    selected_item_ids = request.POST.getlist('selected_items') if request.method == 'POST' else None
 
-    selected_cart_items = CartItem.objects.filter(id__in=selected_item_ids, cart=cart)
+    # Фильтрация элементов корзины по выбранным id
+    selected_cart_items = CartItem.objects.filter(id__in=selected_item_ids, cart=cart) if selected_item_ids else None
+    if not selected_cart_items:
+        # Если нет выбранных товаров, возвращаем пользователя в корзину
+        return redirect('cafe_cat:view_cart')
     total_price = Decimal('0.00')
     for cart_item in selected_cart_items:
-        if cart_item.item.on_sale:
-            total_price += cart_item.item.sale_price * cart_item.quantity
-        else:
-            total_price += cart_item.item.price * cart_item.quantity
+        # Расчет общей суммы заказа с учетом возможных скидок
+        item_price = cart_item.item.sale_price if cart_item.item.on_sale else cart_item.item.price
+        total_price += item_price * cart_item.quantity
 
-    if request.method == 'POST':
-        print(CartItem.objects.filter(id__in=selected_item_ids, cart=cart))
+    if request.method == 'POST' and selected_item_ids:
         form = OrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
             order.user = user
+
+            if 'use_points' in request.POST and request.POST['use_points'] == 'on':
+                loyalty_card = user.profile.loyalty_card
+                # Если используются баллы, и их достаточно, вычитаем из общей суммы
+                if loyalty_card and loyalty_card.points >= 0:
+                    points_to_deduct = min(loyalty_card.points, total_price)
+                    total_price -= points_to_deduct
+                    loyalty_card.points -= points_to_deduct
+                    loyalty_card.points += (total_price * Decimal(0.05))
+                    loyalty_card.save()
+                    order.loyalty_points_used = True
+                else:
+                    messages.error(request, "You do not have enough loyalty points to make this purchase.")
+                    return redirect('cafe_cat:place_order_selected')
+
+            order.total_price = total_price
             order.save()
+            # Создание объектов OrderItem и удаление элементов из корзины
             for cart_item in selected_cart_items:
                 OrderItem.objects.create(order=order, item=cart_item.item, quantity=cart_item.quantity)
             selected_cart_items.delete()
+            # Перенаправление на страницу заказов пользователя
             return redirect('cafe_cat:user_orders')
+        elif not form.is_valid():
+            return render(request, 'cafe_cat/place_order_selected.html', {
+                'form': form,
+                'selected_cart_items': selected_cart_items,
+                'total_price': total_price,
+                'error_message': "Форма невалидна. Исправьте ошибки.",
+                'loyalty_points': user.profile.loyalty_card.points
+            })
     else:
-        form = OrderForm(initial={'menu_items': selected_cart_items})
+        form = OrderForm()
+
     if not selected_item_ids:
+        # Если нет выбранных товаров, возвращаем пользователя в корзину
         return redirect('cafe_cat:view_cart')
+
     return render(request, 'cafe_cat/place_order_selected.html', {
         'form': form,
         'selected_cart_items': selected_cart_items,
-        'total_price': total_price
+        'total_price': total_price,
+        'loyalty_points': user.profile.loyalty_card.points
     })
-
-
 
 
 def update_quantity(request, cart_item_id):
@@ -296,12 +320,12 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Order
 
-@login_required
+@login_required(login_url='/cafe_cat/login/')
 def user_orders(request):
     user = request.user
     orders = Order.objects.filter(user=user)
     return render(request, 'cafe_cat/user_orders.html', {'orders': orders})
-@login_required
+@login_required(login_url='/cafe_cat/login/')
 def delete_order(request, order_id):
     try:
         order = Order.objects.get(pk=order_id)
@@ -316,7 +340,43 @@ def delete_order(request, order_id):
 from django.shortcuts import render, get_object_or_404
 from .models import Order, OrderItem
 
+from decimal import Decimal
+
+@login_required(login_url='/cafe_cat/login/')
 def order_detail(request, order_id):
     order = get_object_or_404(Order, pk=order_id)
     order_items = OrderItem.objects.filter(order=order)
-    return render(request, 'cafe_cat/order_detail.html', {'order': order, 'order_items': order_items})
+    total_price = Decimal(0.00)
+    for order_item in order_items:
+        # Расчет общей суммы заказа с учетом возможных скидок
+        item_price = order_item.item.sale_price if order_item.item.on_sale else order_item.item.price
+        total_price += item_price * order_item.quantity
+    available_points = order.user.profile.loyalty_card.points if order.user.profile.loyalty_card else 0
+    if request.method == 'POST':
+        return redirect('cafe_cat:order_detail', order_id=order_id)
+    return render(request, 'cafe_cat/order_detail.html', {'order': order, 'order_items': order_items,
+                                                          'total_price_with_points': order.total_price,
+                                                          'available_points': available_points,
+                                                          'total_price': total_price})
+
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
+
+def apply_loyalty_points(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+
+    if request.method == 'POST':
+        use_loyalty_points = request.POST.get('use_loyalty_points')  # Получаем значение флажка использования баллов лояльности
+        if use_loyalty_points:
+            # Проверяем, есть ли достаточное количество баллов у пользователя
+            if order.user.profile.loyalty_card.points >= 320:
+                # Вычитаем баллы лояльности из карты пользователя и обновляем сумму заказа
+                order.user.profile.loyalty_card.points -= 320
+                order.save()
+                messages.success(request, 'Баллы лояльности успешно списаны.')
+            else:
+                messages.error(request, 'Недостаточно баллов лояльности для совершения заказа.')
+        else:
+            messages.info(request, 'Баллы лояльности не были использованы.')
+
+    return redirect('cafe_cat:order_detail', order_id=order_id)

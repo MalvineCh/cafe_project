@@ -15,6 +15,7 @@ class MenuItem(models.Model):
     on_sale = models.BooleanField(default=False)
     discount = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     sale_price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    image = models.ImageField(upload_to='menu_item_images/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.on_sale:
@@ -57,18 +58,14 @@ from django.db import models
 from django.db import models
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     full_name = models.CharField(max_length=100, default='')
-    phone_number = models.CharField(max_length=20, default='')  # Значение по умолчанию задаем здесь
+    phone_number = models.CharField(max_length=20, default='')
     address = models.CharField(max_length=255, null=True)
     created_at = models.DateTimeField(default=timezone.now)
-    status = models.CharField(max_length=100, default='Pending')  # Add status field with default value
-
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.created_at = timezone.now()
-        return super(Order, self).save(*args, **kwargs)
-
+    status = models.CharField(max_length=100, default='Pending')
+    loyalty_points_used = models.BooleanField(default=False)
+    total_price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
     def __str__(self):
         return f"Order #{self.id} by {self.user.username}"
@@ -82,26 +79,27 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.item.name}"
 
+class LoyaltyCard(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    points = models.IntegerField(default=100)  # Устанавливаем значение по умолчанию
+
+    def add_points(self, amount):
+        self.points += amount
+        self.save()
+
+    def deduct_points(self, amount):
+        if self.points >= amount:
+            self.points -= amount
+            self.save()
+            return True
+        return False
+    def __str__(self):
+        return f"Loyalty card for {self.user.username}"
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     birthday = models.DateField(null=True, blank=True)
     email = models.EmailField(max_length=255, blank=True)
-    loyalty_card_number = models.CharField(max_length=20, blank=True)
-
+    loyalty_card = models.OneToOneField(LoyaltyCard, on_delete=models.CASCADE, null=True, blank=True)  # Поле loyalty_card
     def __str__(self):
         return self.user.username
-
-
-class LoyaltyCard(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    points = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"Loyalty Card for {self.user.username}"
-
-
-@receiver(post_save, sender=User)
-def create_loyalty_card(sender, instance, created, **kwargs):
-    if created:
-        LoyaltyCard.objects.create(user=instance)

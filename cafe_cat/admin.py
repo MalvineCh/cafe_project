@@ -14,7 +14,7 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(MenuItem)
 class MenuItemAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price']
+    list_display = ['name', 'price', 'image']
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
@@ -49,3 +49,10 @@ class CartItemAdmin(admin.ModelAdmin):
 
     create_order_from_cartitem.short_description = "Create Order from Selected Cart Items"
 
+from django.contrib import admin
+from .models import LoyaltyCard
+
+@admin.register(LoyaltyCard)
+class LoyaltyCardAdmin(admin.ModelAdmin):
+    list_display = ('user', 'points')  # Отображаемые поля в списке объектов
+    search_fields = ('user__username', 'user__email')  # Поля для поиска

@@ -14,7 +14,7 @@
     {% if user.is_authenticated %}
         <p>Логин: {{ user.username }}</p>
         <p>Email: {{ user.email }}</p>
-        <p>Карта лояльности: {{ user.profile.loyalty_card }}</p>
+        <p>Количество баллов на карте лояльности: {{ loyalty_card_points }}</p>
         <form action="{% url 'cafe_cat:profile_update' %}" method="post">
             {% csrf_token %}
             <label for="birthday">День рождения:</label><br>

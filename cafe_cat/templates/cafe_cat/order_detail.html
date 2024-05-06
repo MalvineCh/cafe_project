@@ -1,20 +1,29 @@
 {% extends 'cafe_cat/base_generic.html' %}
 
-{% block title %}Order Detail{% endblock %}
+{% block title %}Детали заказа{% endblock %}
 
 {% block content %}
-  <h1>Order Details</h1>
-  <p>Order ID: {{ order.id }}</p>
-  <p>Customer: {{ order.user }}</p>
-  <p>Delivery Address: {{ order.address }}</p>
-  <p>Contact Number: {{ order.phone_number }}</p>
-  <p>Order Date: {{ order.created_at }}</p>
-  <p>Status: {{ order.status }}</p>
+    <h1>Детали заказа</h1>
+    <p>Заказ №{{ order.id }}</p>
 
-  <h2>Order Items:</h2>
-  <ul>
-    {% for order_item in order_items %}
-      <li>{{ order_item.item.name }} - Quantity: {{ order_item.quantity }}</li>
-    {% endfor %}
-  </ul>
+    <h2>Товары в заказе:</h2>
+    <ul>
+        {% for item in order_items %}
+        <li>{{ item.quantity }} x {{ item.item.name }} -
+            {% if item.item.on_sale %}
+                Цена со скидкой: {{ item.item.sale_price }} руб.
+            {% else %}
+                Цена: {{ item.item.price }} руб.
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+
+    <p>Итоговая цена без учета баллов: {{ total_price }} руб.</p>
+    <p>Итоговая цена с учетом использованных баллов и скидки: {{ total_price_with_points }} руб.</p>
+
+    <h2>Данные клиента:</h2>
+    <p>Полное имя: {{ order.user.get_full_name }}</p>
+    <p>Email: {{ order.user.email }}</p>
+    <!-- Другие данные о клиенте, если необходимо -->
 {% endblock %}
