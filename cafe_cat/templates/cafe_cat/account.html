@@ -9,21 +9,74 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Добро пожаловать в ваш аккаунт!</h2>
-    <!-- Здесь можно добавить дополнительный контент для страницы аккаунта -->
-    {% if user.is_authenticated %}
-        <p>Логин: {{ user.username }}</p>
-        <p>Email: {{ user.email }}</p>
-        <p>Количество баллов на карте лояльности: {{ loyalty_card_points }}</p>
-        <form action="{% url 'cafe_cat:profile_update' %}" method="post">
-            {% csrf_token %}
-            <label for="birthday">День рождения:</label><br>
-            <input type="date" id="birthday" name="birthday" value="{{ user.profile.birthday|date:'Y-m-d' }}"><br><br>
-            <button type="submit">Обновить информацию</button>
-        </form>
-        <form action="{% url 'cafe_cat:logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit">Выход</button>
-        </form>
-    {% endif %}
+    <style>
+        /* Стили для страницы аккаунта */
+        .account-container {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .account-container h2 {
+            color: #333;
+            text-align: center;
+        }
+
+        .account-container p, .account-container form {
+            margin: 10px 0;
+            padding: 5px;
+            text-align: left;
+        }
+
+        .account-container input, .account-container button {
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .account-container button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .account-container button:hover {
+            background-color: #45a049;
+        }
+
+        .account-container label {
+            display: block;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+
+    <div class="account-container">
+        <h2>Добро пожаловать в ваш аккаунт!</h2>
+        {% if user.is_authenticated %}
+            <p>Логин: {{ user.username }}</p>
+            <p>Email: {{ user.email }}</p>
+            <p>Количество баллов на карте лояльности: {{ loyalty_card_points }}</p>
+            <form action="{% url 'cafe_cat:profile_update' %}" method="post">
+                {% csrf_token %}
+                <label for="birthday">День рождения:</label>
+                <input type="date" id="birthday" name="birthday" value="{{ user.profile.birthday|date:'Y-m-d' }}">
+                <button type="submit">Обновить информацию</button>
+            </form>
+            <form action="{% url 'cafe_cat:logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Выход</button>
+            </form>
+        {% endif %}
+    </div>
 {% endblock %}
