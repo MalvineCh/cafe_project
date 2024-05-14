@@ -1,35 +1,88 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Кафе Nutri{% endblock %}</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой сайт</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Trebuchet MS', Helvetica, sans-serif;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background-image: url('C:/Users/Елизавета/Desktop/Учёба/Сайт/Фон для шапки.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding-top: 0;
+        }
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding-top: 0;
+        }
+        .logo img {
+            width: 10%;
+            bottom: 200px;
+        }
+        .header {
+            color: #bfbfbf;
+            font-size: 30px;
+            margin-top: -70px;
+        }
+        .buttons {
+            margin-top: 10px;
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #784627;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            font-family: 'Trebuchet MS', Helvetica, sans-serif;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1><a href="{% url 'cafe_cat:index' %}">Кафе Nutri</a></h1>
-        <nav>
-            <ul>
-                <li><a href="{% url 'cafe_cat:view_cart' %}">Корзина</a></li>
-                <li><a href="{% url 'cafe_cat:checkout' %}">Доставка</a></li>
-                <li><a href="{% url 'cafe_cat:user_orders' %}">Заказы</a></li>
-                <li><a href="{% url 'cafe_cat:menu' %}">Меню</a></li>
+    <div class="container">
+        <div class="content">
+            <div class="logo">
+                <img src="C:/Users/Елизавета/Desktop/Учёба/Сайт/Логотип.png" alt="Логотип">
+            </div>
+            <div class="header">
+                <p>Сеть кафе Nutri Cafe</p>
+            </div>
+            <div class="buttons">
+                <a href="{% url 'cafe_cat:view_cart' %}" class="button">Корзина</a>
+                <a href="{% url 'cafe_cat:checkout' %}" class="button">Доставка</a>
+                <a href="{% url 'cafe_cat:user_orders' %}" class="button">Заказы</a>
+                <a href="{% url 'cafe_cat:menu' %}" class="button">Меню</a>
                 {% if user.is_authenticated %}
-                    <p><a href="{% url 'cafe_cat:account' %}">Аккаунт</a></p>
+                    <a href="{% url 'cafe_cat:account' %}" class="button">Аккаунт</a>
                 {% else %}
-                    <p><a href="{% url 'cafe_cat:login' %}">Зайти</a></p>
-                    <p><a href="{% url 'cafe_cat:register' %}">Зарегистрироваться</a></p>
+                    <a href="{% url 'cafe_cat:login' %}" class="button">Войти</a>
+                    <a href="{% url 'cafe_cat:register' %}" class="button">Зарегистрироваться</a>
                 {% endif %}
-            </ul>
-        </nav>
-    </header>
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
-    <footer>
-        <p>© 2024 Кафе Nutri. Все права защищены.</p>
-    </footer>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
