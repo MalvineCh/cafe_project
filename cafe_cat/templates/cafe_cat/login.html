@@ -1,13 +1,80 @@
-{% extends 'cafe_cat/base_generic.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой сайт</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Trebuchet MS', Helvetica, sans-serif;
+        }
+        .container {
+            position: relative; /* Обязательно для позиционирования псевдоэлемента */
+            width: 100%;
+            height: 100vh; /* Это для демонстрации на всю высоту окна */
+            background-color: #589235;
+            background-size: cover;
+            background-position: center;
+            color: white; /* Настройте цвет текста на ваше усмотрение */
+        }
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Здесь можно настроить цвет и прозрачность затемнения */
+        }
+        .content {
+            position: relative;
+            z-index: 1; /* Чтобы содержимое находилось над затемнением */
+            text-align: center;
+            padding-top: 50px; /* Добавляем отступ сверху, чтобы содержимое не было затемнено */
+        }
 
-{% block title %}Login{% endblock %}
-
-{% block content %}
-    <h1>Login</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-    </form>
-    <p>Не зарегистрированы? <a href="{% url 'cafe_cat:register' %}">Зарегистрироваться</a></p>
-{% endblock %}
+        .logo img {
+            width: 22%; /* Пример ширины логотипа */
+        }
+        .header{
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding-top: 10px;
+            color: #bfbfbf;
+            font-size: 88px;
+            margin-top: -90px;
+        }
+        .buttons {
+            margin-top: 10px; /* отступ сверху */
+        }
+        
+        .window{
+        	width: 600px; /* Ширина прямоугольника */
+    		height: 300px; /* Высота прямоугольника */
+    		background-color: #784627; /* Цвет фона прямоугольника */
+    		position: fixed;
+    		top: 50%;
+    		left: 50%;
+    		transform: translate(-50%, -50%);
+    		border-radius: 5px; /* Скругление углов */   		
+        }
+        .text1{
+			font-size: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <div class="window">
+            	<div class="text1">
+            		<p>Вход / Регистрация
+            	</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
