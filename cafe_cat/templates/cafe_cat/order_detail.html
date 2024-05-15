@@ -1,29 +1,74 @@
-{% extends 'cafe_cat/base_generic.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали заказа</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
 
-{% block title %}Детали заказа{% endblock %}
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
 
-{% block content %}
-    <h1>Детали заказа</h1>
-    <p>Заказ №{{ order.id }}</p>
+        h1, h2 {
+            color: #333;
+        }
 
-    <h2>Товары в заказе:</h2>
-    <ul>
-        {% for item in order_items %}
-        <li>{{ item.quantity }} x {{ item.item.name }} -
-            {% if item.item.on_sale %}
-                Цена со скидкой: {{ item.item.sale_price }} руб.
-            {% else %}
-                Цена: {{ item.item.price }} руб.
-            {% endif %}
-        </li>
-        {% endfor %}
-    </ul>
+        ul {
+            list-style: none;
+            padding: 0;
+        }
 
-    <p>Итоговая цена без учета баллов: {{ total_price }} руб.</p>
-    <p>Итоговая цена с учетом использованных баллов и скидки: {{ total_price_with_points }} руб.</p>
+        li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
 
-    <h2>Данные клиента:</h2>
-    <p>Полное имя: {{ order.user.get_full_name }}</p>
-    <p>Email: {{ order.user.email }}</p>
-    <!-- Другие данные о клиенте, если необходимо -->
-{% endblock %}
+        p {
+            margin-bottom: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Детали заказа</h1>
+        <p>Заказ №{{ order.id }}</p>
+
+        <h2>Товары в заказе:</h2>
+        <ul>
+            {% for item in order_items %}
+            <li>{{ item.quantity }} x {{ item.item.name }} -
+                {% if item.item.on_sale %}
+                    Цена со скидкой: {{ item.item.sale_price }} руб.
+                {% else %}
+                    Цена: {{ item.item.price }} руб.
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+
+        <p>Итоговая цена без учета баллов: {{ total_price }} руб.</p>
+        <p>Итоговая цена с учетом использованных баллов и скидки: {{ total_price_with_points }} руб.</p>
+
+        <h2>Данные клиента:</h2>
+        <p>Полное имя: {{ order.user.get_full_name }}</p>
+        <p>Email: {{ order.user.email }}</p>
+        <!-- Другие данные о клиенте, если необходимо -->
+    </div>
+</body>
+</html>
