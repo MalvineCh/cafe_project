@@ -1,22 +1,109 @@
 {% extends 'cafe_cat/base_generic.html' %}
 
-{% block title %}Домашняя страница - Кафе Nutri{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кафе Nutri</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
 
-{% block content %}
-    <h2>Добро пожаловать в Кафе Nutri!</h2>
-    <p>Уютное место для встречи с друзьями и наслаждения великолепным кофе.</p>
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
 
-    <div id="featured-products">
-        <h3>Избранные товары</h3>
-        <ul>
-            {% for item in featured_items %}
+        h2 {
+            color: #333;
+        }
+
+        p {
+            color: #666;
+        }
+
+        #featured-products {
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #333;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        h4 {
+            margin: 10px;
+        }
+
+        p.price {
+            margin: 0 10px 10px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        a.button {
+            display: block;
+            background-color: #ff6600;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 0 0 5px 5px;
+        }
+
+        a.button:hover {
+            background-color: #cc5500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Добро пожаловать в Кафе Nutri!</h2>
+        <p>Уютное место для встречи с друзьями и наслаждения великолепным кофе.</p>
+        
+        <div id="featured-products">
+            <h3>Избранные товары</h3>
+            <ul>
                 <li>
-                    <img src="{{ item.image_url }}" alt="{{ item.name }}">
-                    <h4>{{ item.name }}</h4>
-                    <p>Цена: {{ item.price }} руб.</p>
-                    <a href="{% url 'cafe_cat:add_to_cart' item.id %}">Добавить в корзину</a>
+                    <img src="item1.jpg" alt="Название товара 1">
+                    <h4>Название товара 1</h4>
+                    <p class="price">Цена: 100 руб.</p>
+                    <a href="#" class="button">Добавить в корзину</a>
                 </li>
-            {% endfor %}
-        </ul>
+                <li>
+                    <img src="item2.jpg" alt="Название товара 2">
+                    <h4>Название товара 2</h4>
+                    <p class="price">Цена: 150 руб.</p>
+                    <a href="#" class="button">Добавить в корзину</a>
+                </li>
+                <!-- Добавьте другие товары, следуя тому же шаблону -->
+            </ul>
+        </div>
     </div>
-{% endblock %}
+</body>
+</html>
