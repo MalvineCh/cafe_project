@@ -1,31 +1,118 @@
 {% extends 'cafe_cat/base_generic.html' %}
 
-{% block content %}
-{% load static %}
-    <h2>Меню</h2>
-    {% if items %}
-        <ul>
-            {% for item in items %}
-                <li class="{% if item.is_featured %}featured{% endif %}">
-                    <h3>{{ item.name }}</h3>
-                    {% if item.image %}
-                        <img src="{{ item.image.url }}" alt="{{ item.name }}" width="300" height="200">
-                    {% endif %}
-                    {% if item.on_sale %}
-                        <p>Цена: <del>{{ item.price }}</del> {{ item.sale_price }}</p>
-                    {% else %}
-                        <p>Цена: {{ item.price }}</p>
-                    {% endif %}
-                    <p>{{ item.description }}</p>
-                    <form action="{% url 'cafe_cat:add_to_cart' item.id %}" method="post">
-                        {% csrf_token %}
-                        <input type="number" name="quantity" value="1" min="1">
-                        <input type="submit" value="Добавить в корзину">
-                    </form>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>В данный момент единицы меню недоступны.</p>
-    {% endif %}
-{% endblock %}
+{% extends 'cafe_cat/base_generic.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Меню Кафе</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        p {
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        form {
+            margin-top: 10px;
+        }
+
+        input[type="number"] {
+            width: 50px;
+        }
+
+        input[type="submit"] {
+            background-color: #ff6600;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #cc5500;
+        }
+
+        .featured {
+            border: 2px solid #ff6600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Меню</h2>
+        {% if items %}
+            <ul>
+                {% for item in items %}
+                    <li class="{% if item.is_featured %}featured{% endif %}">
+                        <h3>{{ item.name }}</h3>
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                        {% endif %}
+                        {% if item.on_sale %}
+                            <p>Цена: <del>{{ item.price }}</del> {{ item.sale_price }}</p>
+                        {% else %}
+                            <p>Цена: {{ item.price }}</p>
+                        {% endif %}
+                        <p>{{ item.description }}</p>
+                        <form action="{% url 'cafe_cat:add_to_cart' item.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="1" min="1">
+                            <input type="submit" value="Добавить в корзину">
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>В данный момент единицы меню недоступны.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+
