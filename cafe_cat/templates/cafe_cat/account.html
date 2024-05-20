@@ -7,7 +7,8 @@
         Аккаунт - Кафе Nutri
     {% endif %}
 {% endblock %}
-
+<html lang="en">
+<meta charset="UTF-8">
 {% block content %}
     <style>
         /* Стили для страницы аккаунта */
@@ -60,7 +61,17 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
     </style>
-
+    <div class="buttons">
+                    <a href="{% url 'cafe_cat:view_cart' %}" class="button">Корзина</a>
+                    <a href="{% url 'cafe_cat:user_orders' %}" class="button">Заказы</a>
+                    <a href="{% url 'cafe_cat:menu' %}" class="button">Меню</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'cafe_cat:account' %}" class="button">Аккаунт</a>
+                    {% else %}
+                        <a href="{% url 'cafe_cat:login' %}" class="button">Войти</a>
+                        <a href="{% url 'cafe_cat:register' %}" class="button">Зарегистрироваться</a>
+                    {% endif %}
+    </div>
     <div class="account-container">
         <h2>Добро пожаловать в ваш аккаунт!</h2>
         {% if user.is_authenticated %}
