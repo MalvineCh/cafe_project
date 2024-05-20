@@ -4,9 +4,47 @@
 
 {% block content %}
     <h1>Register</h1>
-    <form method="post">
+    <form method="post" class="register-form">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Register</button>
+        <button type="submit" class="register-button">Register</button>
     </form>
 {% endblock %}
+
+{% block styles %}
+    <style>
+        .register-form {
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        .register-form input[type="text"],
+        .register-form input[type="email"],
+        .register-form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        .register-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .register-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+{% endblock %}
+
+
+
