@@ -1,21 +1,36 @@
-{% extends 'cafe_cat/base_generic.html' %}
-
-{% block title %}Register{% endblock %}
-
-{% block content %}
-    <h1>Register</h1>
-    <form method="post" class="register-form">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="register-button">Register</button>
-    </form>
-{% endblock %}
-
-{% block styles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
     <style>
-        .register-form {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .register-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
-            margin: 0 auto;
+            text-align: center;
+        }
+
+        .register-container h1 {
+            margin-bottom: 20px;
+        }
+
+        .register-form {
+            width: 100%;
         }
 
         .register-form input[type="text"],
@@ -44,7 +59,15 @@
             background-color: #45a049;
         }
     </style>
-{% endblock %}
-
-
-
+</head>
+<body>
+    <div class="register-container">
+        <h1>Register</h1>
+        <form method="post" class="register-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="register-button">Register</button>
+        </form>
+    </div>
+</body>
+</html>

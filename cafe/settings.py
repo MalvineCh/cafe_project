@@ -124,6 +124,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'cafe_cat:index'
 LOGOUT_REDIRECT_URL = 'cafe_cat:index'
+LOGIN_URL = '/cafe_cat/login/'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 MEDIA_URL = '/media/'

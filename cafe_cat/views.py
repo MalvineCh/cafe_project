@@ -65,39 +65,30 @@ def menu(request):
     return render(request, 'cafe_cat/menu.html', {
         'items': items
     })
-@login_required
+@login_required(login_url='/cafe_cat/login/')
 def account(request):
-    # Получение пользователя из запроса
     user = request.user
-    # Получение профиля пользователя или создание нового, если его нет
     profile, created = Profile.objects.get_or_create(user=user)
 
-    if profile.loyalty_card:
-        loyalty_card = profile.loyalty_card
-    else:
-        # Если карта лояльности отсутствует, создаем ее для пользователя
+    # Проверяем, есть ли уже карта лояльности, связанная с этим профилем
+    loyalty_card = LoyaltyCard.objects.filter(user=user).first()
+    if not loyalty_card:
+        # Если карты лояльности нет, создаем новую и связываем ее с профилем
         loyalty_card = LoyaltyCard.objects.create(user=user)
-        # Привязываем созданную карту лояльности к профилю пользователя
         profile.loyalty_card = loyalty_card
         profile.save()
-    # Обработка POST-запроса для обновления профиля
+
     if request.method == 'POST':
-        # Создание формы для обновления профиля с переданными данными из запроса
         form = ProfileUpdateForm(request.POST, instance=profile)
-        # Проверка валидности формы
         if form.is_valid():
-            # Сохранение данных профиля
             form.save()
-            # Перенаправление пользователя на страницу аккаунта с обновленными данными
             return redirect('cafe_cat:account')
     else:
-        # Если метод запроса GET, создаем форму для обновления профиля с текущими данными пользователя
         form = ProfileUpdateForm(instance=profile)
 
-    # Получаем объект карты лояльности пользователя, если он существует
-
-    # Возвращаем HTML-страницу с контекстом, включающим пользователя, форму для обновления профиля и количество баллов на карте лояльности
     return render(request, 'cafe_cat/account.html', {'user': user, 'form': form, 'loyalty_card_points': loyalty_card.points})
+
+
 def profile_update(request):
     user = request.user
     try:
@@ -135,19 +126,18 @@ def register(request):
         if form.is_valid():
             user = form.save()
             LoyaltyCard.objects.create(user=user)
-            login(request, user)  # Убедитесь, что здесь вызывается login только с объектом запроса
-            return redirect('cafe_cat')
+            auth_login(request, user)  # Убедитесь, что здесь вызывается login с request и user
+            return redirect('cafe_cat:account')
     else:
         form = UserCreationForm()
     return render(request, 'cafe_cat/register.html', {'form': form})
-
 def user_login(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, request.POST)
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            user = authenticate(request, username=username, password=password)
             if user is not None:
                 auth_login(request, user)
                 return redirect('cafe_cat:account')

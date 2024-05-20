@@ -1,78 +1,75 @@
-
-
-{% block title %}Вход / Регистрация{% endblock %}
-
-{% block styles %}
+<!DOCTYPE html>
 <html lang="en">
-<meta charset="UTF-8">
-<style>
-
-    .container {
-        position: relative;
-        width: 100%;
-        height: 100vh;
-        background-color: #589235;
-        background-size: cover;
-        background-position: center;
-        color: white;
-    }
-    .container::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-    }
-    .content {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        padding-top: 50px;
-    }
-    .window {
-        width: 600px;
-        height: 300px;
-        background-color: #784627;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .text1 {
-        font-size: 25px;
-        color: white;
-    }
-    .window input[type="text"],
-    .window input[type="password"] {
-        width: 80%;
-        padding: 10px;
-        margin: 10px 0;
-        border: none;
-        border-radius: 5px;
-    }
-    .window button {
-        padding: 10px 20px;
-        background-color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        color: #784627;
-    }
-    .buttons {
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Вход / Регистрация{% endblock %}</title>
+    {% block styles %}
+    <style>
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background-color: #589235;
+            background-size: cover;
+            background-position: center;
+            color: white;
+        }
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding-top: 50px;
+        }
+        .window {
+            width: 600px;
+            height: 300px;
+            background-color: #784627;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .text1 {
+            font-size: 25px;
+            color: white;
+        }
+        .window input[type="text"],
+        .window input[type="password"] {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        .window button {
+            padding: 10px 20px;
+            background-color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #784627;
+        }
+        .buttons {
             margin-top: 10px;
             display: flex;
-            justify-content: space-around; /* Распределение кнопок на доступном пространстве */
-            flex-wrap: wrap; /* Перенос элементов на следующую строку, если не хватает места */
-            margin-top: 10px;
-    }
-    .button {
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .button {
             padding: 10px 20px;
             margin: 10px;
             background-color: #784627;
@@ -83,65 +80,53 @@
             cursor: pointer;
             font-family: 'Trebuchet MS', Helvetica, sans-serif;
             text-decoration: none;
-    }
-    .button1 {
-        margin: 10px;
-    }
-    .buttons .button {
-        margin: 10px 30px;
-        justify-content: space-between; /* Равномерное распределение кнопок по контейнеру */
-        margin: 0 10px; /* Горизонтальные отступы слева и справа от контейнера */
-    }
-   .buttons .button {
-        margin-bottom: 10px; /* Вертикальный отступ между кнопками */
-    }
-   .header {
-        color: #bfbfbf;
-        font-size: 30px;
-        margin-top: -70px;
-   }
-   .logo img {
-        width: 10%;
-        bottom: 200px;
-   }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="container">
-    <div class="content">
-
-        <div class="header">
-                    <p>Сеть кафе Nutri Cafe</p>
-        </div>
-        <div class="buttons">
-                    <a href="{% url 'cafe_cat:view_cart' %}" class="button">Корзина</a>
-                    <a href="{% url 'cafe_cat:user_orders' %}" class="button">Заказы</a>
-                    <a href="{% url 'cafe_cat:menu' %}" class="button">Меню</a>
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'cafe_cat:account' %}" class="button">Аккаунт</a>
-                    {% else %}
-                        <a href="{% url 'cafe_cat:login' %}" class="button">Войти</a>
-                        <a href="{% url 'cafe_cat:register' %}" class="button">Зарегистрироваться</a>
-                    {% endif %}
-        </div>
-        <div class="window">
-            <div class="text1">
-                <p>Вход</p>
-                <form action="#" method="post"> <!-- Замените # на ваш URL обработчика формы -->
-                    <input type="text" name="username" placeholder="Логин" required>
-                    <input type="password" name="password" placeholder="Пароль" required>
-
-                    {% if user.is_authenticated %} //если есть акк, то переходим в профиль
-                        <button formaction="{% url 'cafe_cat:account' %}" class="button1">Войти</button>
-                    {% else %}
-                        <button formaction="{% url 'cafe_cat:account' %}" class="button1">Войти</button>
-
-                    {% endif %}
-                </form>
+        }
+        .button1 {
+            margin: 10px;
+        }
+        .header {
+            color: #bfbfbf;
+            font-size: 30px;
+            margin-top: -70px;
+        }
+        .logo img {
+            width: 10%;
+            bottom: 200px;
+        }
+    </style>
+    {% endblock %}
+</head>
+<body>
+    {% block content %}
+    <div class="container">
+        <div class="content">
+            <div class="header">
+                <p>Сеть кафе Nutri Cafe</p>
+            </div>
+            <div class="buttons">
+                <a href="{% url 'cafe_cat:view_cart' %}" class="button">Корзина</a>
+                <a href="{% url 'cafe_cat:user_orders' %}" class="button">Заказы</a>
+                <a href="{% url 'cafe_cat:menu' %}" class="button">Меню</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'cafe_cat:account' %}" class="button">Аккаунт</a>
+                {% else %}
+                    <a href="{% url 'cafe_cat:login' %}" class="button">Войти</a>
+                    <a href="{% url 'cafe_cat:register' %}" class="button">Зарегистрироваться</a>
+                {% endif %}
+            </div>
+            <div class="window">
+                <div class="text1">
+                    <p>Вход</p>
+                    <form action="{% url 'cafe_cat:login' %}" method="post">
+                        {% csrf_token %}
+                        <input type="text" name="username" placeholder="Логин" required>
+                        <input type="password" name="password" placeholder="Пароль" required>
+                    <button type="submit" class="button1">Войти</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
-	
+    {% endblock %}
+</body>
+</html>

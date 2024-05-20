@@ -6,11 +6,9 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('cafe_cat/', include('cafe_cat.urls', namespace='cafe_cat')),  # Включение URL-адресов приложения cafe_cat с префиксом
-    # Другие ваши URL-адреса
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
-# Используйте static() чтобы добавить соотношения для статических файлов
-# Только на период разработки
 from django.conf import settings
 from django.conf.urls.static import static
 
