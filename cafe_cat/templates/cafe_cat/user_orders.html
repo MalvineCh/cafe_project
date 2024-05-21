@@ -1,8 +1,64 @@
-{% extends 'cafe_cat/base_generic.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
 
-{% block title %}Your Orders{% endblock %}
+        h1 {
+            text-align: center;
+            color: #333;
+        }
 
-{% block content %}
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        form {
+            display: inline-block;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
     <h1>Your Orders</h1>
     {% if orders %}
         <ul>
@@ -27,4 +83,5 @@
     {% else %}
         <p>No orders available.</p>
     {% endif %}
-{% endblock %}
+</body>
+</html>

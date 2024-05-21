@@ -34,7 +34,7 @@ class MenuItem(models.Model):
 
 class Cart(models.Model):
     """ Модель корзины, ассоциирована с пользователем и содержит элементы меню. """
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart', null=True, blank=True)
     items = models.ManyToManyField(MenuItem, through='CartItem')
     session_key = models.CharField(max_length=100, null=True, blank=True)  # Добавлено поле session_key
 

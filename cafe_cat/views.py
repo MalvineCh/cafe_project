@@ -125,12 +125,17 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            LoyaltyCard.objects.create(user=user)
+            # Создание профиля и карты лояльности для нового пользователя
+            profile = Profile.objects.create(user=user)
+            loyalty_card = LoyaltyCard.objects.create(user=user)
+            profile.loyalty_card = loyalty_card
+            profile.save()
             auth_login(request, user)  # Убедитесь, что здесь вызывается login с request и user
             return redirect('cafe_cat:account')
     else:
         form = UserCreationForm()
     return render(request, 'cafe_cat/register.html', {'form': form})
+
 def user_login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -222,16 +227,25 @@ def remove_selected(request):
     return JsonResponse({'status': 'error'})
 
 
-from django.contrib.auth.decorators import login_required
-from .models import Cart, CartItem
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from decimal import Decimal
+from .models import Cart, CartItem, Order, OrderItem
 from .forms import OrderForm
 
-
-@login_required(login_url='/cafe_cat/login/')
 def place_order_selected(request):
-    user = request.user
-    # Получение или создание корзины для пользователя
-    cart, created = Cart.objects.get_or_create(user=user)
+    user = request.user if request.user.is_authenticated else None
+
+    # Получение или создание корзины для пользователя или по сессии
+    if user:
+        cart, created = Cart.objects.get_or_create(user=user)
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        cart, created = Cart.objects.get_or_create(session_key=session_key, defaults={'user': None})
+
     # При методе POST находим выбранные товары
     selected_item_ids = request.POST.getlist('selected_items') if request.method == 'POST' else None
 
@@ -240,6 +254,7 @@ def place_order_selected(request):
     if not selected_cart_items:
         # Если нет выбранных товаров, возвращаем пользователя в корзину
         return redirect('cafe_cat:view_cart')
+
     total_price = Decimal('0.00')
     for cart_item in selected_cart_items:
         # Расчет общей суммы заказа с учетом возможных скидок
@@ -250,20 +265,25 @@ def place_order_selected(request):
         form = OrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
-            order.user = user
+            if user:
+                order.user = user
 
-            if 'use_points' in request.POST and request.POST['use_points'] == 'on':
-                loyalty_card = user.profile.loyalty_card
-                # Если используются баллы, и их достаточно, вычитаем из общей суммы
-                if loyalty_card and loyalty_card.points >= 0:
-                    points_to_deduct = min(loyalty_card.points, total_price)
-                    total_price -= points_to_deduct
-                    loyalty_card.points -= points_to_deduct
-                    loyalty_card.points += (total_price * Decimal(0.05))
-                    loyalty_card.save()
-                    order.loyalty_points_used = True
+            if user and 'use_points' in request.POST and request.POST['use_points'] == 'on':
+                if user.profile.loyalty_card:
+                    loyalty_card = user.profile.loyalty_card
+                    # Если используются баллы, и их достаточно, вычитаем из общей суммы
+                    if loyalty_card.points >= 0:
+                        points_to_deduct = min(loyalty_card.points, total_price)
+                        total_price -= points_to_deduct
+                        loyalty_card.points -= points_to_deduct
+                        loyalty_card.points += (total_price * Decimal(0.05))
+                        loyalty_card.save()
+                        order.loyalty_points_used = True
+                    else:
+                        messages.error(request, "You do not have enough loyalty points to make this purchase.")
+                        return redirect('cafe_cat:place_order_selected')
                 else:
-                    messages.error(request, "You do not have enough loyalty points to make this purchase.")
+                    messages.error(request, "No loyalty card found.")
                     return redirect('cafe_cat:place_order_selected')
 
             order.total_price = total_price
@@ -272,15 +292,15 @@ def place_order_selected(request):
             for cart_item in selected_cart_items:
                 OrderItem.objects.create(order=order, item=cart_item.item, quantity=cart_item.quantity)
             selected_cart_items.delete()
-            # Перенаправление на страницу заказов пользователя
-            return redirect('cafe_cat:user_orders')
+            # Перенаправление на страницу заказов пользователя или подтверждения заказа
+            return redirect('cafe_cat:user_orders' if user else 'cafe_cat:order_success', order_id=order.id)
         elif not form.is_valid():
             return render(request, 'cafe_cat/place_order_selected.html', {
                 'form': form,
                 'selected_cart_items': selected_cart_items,
                 'total_price': total_price,
                 'error_message': "Форма невалидна. Исправьте ошибки.",
-                'loyalty_points': user.profile.loyalty_card.points
+                'loyalty_points': user.profile.loyalty_card.points if user and user.profile.loyalty_card else 0
             })
     else:
         form = OrderForm()
@@ -293,9 +313,8 @@ def place_order_selected(request):
         'form': form,
         'selected_cart_items': selected_cart_items,
         'total_price': total_price,
-        'loyalty_points': user.profile.loyalty_card.points
+        'loyalty_points': user.profile.loyalty_card.points if user and user.profile.loyalty_card else 0
     })
-
 
 def update_quantity(request, cart_item_id):
     cart_item = get_object_or_404(CartItem, pk=cart_item_id)
