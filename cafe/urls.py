@@ -5,7 +5,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('cafe_cat/', include('cafe_cat.urls', namespace='cafe_cat')),  # Включение URL-адресов приложения cafe_cat с префиксом
+    path('', include('cafe_cat.urls', namespace='cafe_cat')),  # Включение URL-адресов приложения cafe_cat с префиксом
     path('accounts/', include('django.contrib.auth.urls')),
 ]
 

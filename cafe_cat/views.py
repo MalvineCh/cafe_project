@@ -293,7 +293,7 @@ def place_order_selected(request):
                 OrderItem.objects.create(order=order, item=cart_item.item, quantity=cart_item.quantity)
             selected_cart_items.delete()
             # Перенаправление на страницу заказов пользователя или подтверждения заказа
-            return redirect('cafe_cat:user_orders' if user else 'cafe_cat:order_success', order_id=order.id)
+            return redirect('cafe_cat:order_success', order_id=order.id)
         elif not form.is_valid():
             return render(request, 'cafe_cat/place_order_selected.html', {
                 'form': form,
