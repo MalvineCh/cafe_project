@@ -11,12 +11,30 @@
             color: white;
             margin: 0;
             padding: 0;
+            background: url('/media/menu_item_images/фон.jpg') no-repeat center center fixed;
+            background-size: cover;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
+
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный цвет */
+            z-index: 0;
         }
 
         .header {
             text-align: center;
             padding: 20px;
             background-color: #589235;
+            position: relative;
         }
 
         .header h1 {
@@ -28,6 +46,7 @@
             display: flex;
             justify-content: center;
             gap: 10px;
+            position: relative;
         }
 
         .button {
@@ -39,6 +58,7 @@
             font-size: 18px;
             cursor: pointer;
             text-decoration: none;
+            position: relative;
         }
 
         .button:hover {
@@ -53,6 +73,7 @@
             color: black;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
         }
 
         .account-container h2 {

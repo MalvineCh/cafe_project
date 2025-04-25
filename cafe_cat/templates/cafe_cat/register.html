@@ -7,13 +7,19 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background: url('/media/menu_item_images/фон.jpg') no-repeat center center fixed;
+            background-size: cover;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
         }
 
         .register-container {
@@ -21,7 +27,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            width: 500px;
             text-align: center;
         }
 
@@ -58,10 +64,40 @@
         .register-button:hover {
             background-color: #45a049;
         }
+        .button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #784627;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            font-family: 'Trebuchet MS', Helvetica, sans-serif;
+            text-decoration: none;
+            position: relative;
+    }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="register-container">
+        <div class="buttons">
+            <a href="{% url 'cafe_cat:view_cart' %}" class="button">Корзина</a>
+            <a href="{% url 'cafe_cat:user_orders' %}" class="button">Заказы</a>
+            <a href="{% url 'cafe_cat:menu' %}" class="button">Меню</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'cafe_cat:account' %}" class="button">Аккаунт</a>
+            {% else %}
+                <a href="{% url 'cafe_cat:login' %}" class="button">Войти</a>
+                <a href="{% url 'cafe_cat:register' %}" class="button">Зарегистрироваться</a>
+            {% endif %}
+    </div>
         <h1>Register</h1>
         <form method="post" class="register-form">
             {% csrf_token %}

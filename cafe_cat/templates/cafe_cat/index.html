@@ -9,7 +9,23 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background: url('media/menu_item_images/фон.jpg') no-repeat center center fixed;
+            background-size: cover;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
+
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный цвет */
+            z-index: 0;
         }
 
         .container {
@@ -19,21 +35,32 @@
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
         }
 
         h2 {
             color: #333;
+            text-align: center;
         }
 
         p {
             color: #666;
+            text-align: center;
+
         }
 
-        .buttons {
-            margin-top: 10px;
+       .buttons {
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
             flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .header {
+            text-align: center;
+            color: #fff;
+            position: relative;
+            font-family: 'Trebuchet MS', Helvetica, sans-serif;
         }
 
         .button {
@@ -47,6 +74,7 @@
             cursor: pointer;
             font-family: 'Trebuchet MS', Helvetica, sans-serif;
             text-decoration: none;
+            position: relative;
         }
 
         .button:hover {
@@ -54,6 +82,7 @@
         }
 
         .account-container {
+            position: relative;
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
@@ -61,6 +90,8 @@
             color: black;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+            text-align: center;
         }
 
         .account-container h2 {
@@ -79,20 +110,24 @@
             margin-top: 5px;
             border-radius: 4px;
             border: 1px solid #ccc;
+            text-align: center;
         }
 
         .account-container button {
             background-color: #4CAF50;
             color: white;
             cursor: pointer;
+            text-align: center;
         }
 
         .account-container button:hover {
             background-color: #45a049;
+            text-align: center;
         }
 
         .account-container label {
             display: block;
+            text-align: center;
         }
 
         form {
@@ -100,6 +135,7 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-align: center;
         }
     </style>
 </head>

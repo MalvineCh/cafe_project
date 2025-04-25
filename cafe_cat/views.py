@@ -9,6 +9,8 @@ def home(request):
     # Покажем избранные товары на главной странице
     featured_items = MenuItem.objects.filter(is_featured=True)
     return render(request, 'cafe_cat/index.html', {'featured_items': featured_items})
+
+@login_required(login_url='/login/')
 def checkout(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
@@ -43,6 +45,7 @@ def checkout(request):
 
     return render(request, 'cafe_cat/checkout.html', {'form': form, 'menu_items': menu_items})
 
+@login_required(login_url='/login/')
 def place_order(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
@@ -65,7 +68,7 @@ def menu(request):
     return render(request, 'cafe_cat/menu.html', {
         'items': items
     })
-@login_required(login_url='/cafe_cat/login/')
+@login_required(login_url='/login/')
 def account(request):
     user = request.user
     profile, created = Profile.objects.get_or_create(user=user)
@@ -158,37 +161,45 @@ from .models import Cart, MenuItem, CartItem
 def add_to_cart(request, item_id):
     print("Adding item to cart...")
 
-    # Получаем элемент меню, который пользователь хочет добавить в корзину
+    # Получаем элемент меню
     menu_item = get_object_or_404(MenuItem, pk=item_id)
     print("Menu item:", menu_item)
 
-    # Попытка получить корзину пользователя
+    # Получаем количество из POST-запроса
+    quantity = int(request.POST.get('quantity', 1))  # По умолчанию 1, если поле не передано
+    print("Quantity:", quantity)
+
+    # Получаем или создаем корзину пользователя
     user_cart = None
     if request.user.is_authenticated:
         user_cart, created = Cart.objects.get_or_create(user=request.user)
     else:
         session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
         carts = Cart.objects.filter(session_key=session_key)
         if carts.exists():
             user_cart = carts.first()
         else:
             user_cart = Cart.objects.create(session_key=session_key)
 
-    # Пытаемся получить элемент корзины для данного блюда и данной корзины
+    # Обновляем или создаем элемент корзины
     try:
         cart_item = CartItem.objects.get(cart=user_cart, item=menu_item)
-        cart_item.quantity += 1  # Увеличиваем количество товара на 1
+        cart_item.quantity += quantity  # Увеличиваем количество на указанное значение
         cart_item.save()
-        print("Existing cart item:", cart_item)
+        print("Existing cart item updated:", cart_item)
     except CartItem.DoesNotExist:
-        # Если элемента корзины нет, создаем новый
-        cart_item = CartItem.objects.create(cart=user_cart, item=menu_item, quantity=1)
-        print("New cart item:", cart_item)
+        cart_item = CartItem.objects.create(
+            cart=user_cart,
+            item=menu_item,
+            quantity=quantity
+        )
+        print("New cart item created:", cart_item)
 
     print("Item added to cart successfully.")
-
     return redirect('cafe_cat:menu')
-
 def view_cart(request):
     # Попытка получить корзину пользователя
     user_cart = None
@@ -233,6 +244,7 @@ from decimal import Decimal
 from .models import Cart, CartItem, Order, OrderItem
 from .forms import OrderForm
 
+@login_required(login_url='/login/')
 def place_order_selected(request):
     user = request.user if request.user.is_authenticated else None
 
@@ -329,12 +341,12 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Order
 
-@login_required(login_url='/cafe_cat/login/')
+@login_required(login_url='/login/')
 def user_orders(request):
     user = request.user
     orders = Order.objects.filter(user=user)
     return render(request, 'cafe_cat/user_orders.html', {'orders': orders})
-@login_required(login_url='/cafe_cat/login/')
+@login_required(login_url='/login/')
 def delete_order(request, order_id):
     try:
         order = Order.objects.get(pk=order_id)
@@ -351,7 +363,7 @@ from .models import Order, OrderItem
 
 from decimal import Decimal
 
-@login_required(login_url='/cafe_cat/login/')
+@login_required(login_url='/login/')
 def order_detail(request, order_id):
     order = get_object_or_404(Order, pk=order_id)
     order_items = OrderItem.objects.filter(order=order)

@@ -10,7 +10,12 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background: url('/media/menu_item_images/фон.jpg') no-repeat center center fixed;
+            background-size: cover;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
         }
 
         .container {
@@ -20,6 +25,9 @@
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+            text-align: center;
         }
 
         h2 {
@@ -46,9 +54,10 @@
 
         img {
             max-width: 100%;
-            display: block;
+
             margin-bottom: 10px;
             border-radius: 5px;
+            position: center;
         }
 
         p {
@@ -91,6 +100,7 @@
             cursor: pointer;
             font-family: 'Trebuchet MS', Helvetica, sans-serif;
             text-decoration: none;
+            position: center;
     }
     </style>
 </head>
