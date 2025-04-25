@@ -37,7 +37,7 @@ Django 4.x
 ### Шаги
 
 #### Клонировать репозиторий:
-git clone https://github.com/MalvineCh/nutri-cafe.git
+git clone https://github.com/MalvineCh/cafe_project.git
 
 cd nutri-cafe
 
@@ -45,7 +45,8 @@ cd nutri-cafe
 
 python -m venv venv
 
-source venv/bin/activate   # На Windows используйте `venv\Scripts\activate`
+source venv/bin/activate   
+# На Windows используйте `venv\Scripts\activate`
 
 #### Установить зависимости:
 
