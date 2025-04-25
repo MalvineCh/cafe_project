@@ -46,7 +46,7 @@ cd nutri-cafe
 python -m venv venv
 
 source venv/bin/activate   
-# На Windows используйте `venv\Scripts\activate`
+##### На Windows используйте `venv\Scripts\activate`
 
 #### Установить зависимости:
 
