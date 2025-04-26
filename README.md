@@ -38,7 +38,7 @@ Django 4.x
 #### Клонировать репозиторий:
 git clone https://github.com/MalvineCh/cafe_project.git
 
-cd nutri-cafe
+cd cafe_project
 
 #### Создать виртуальное окружение и активировать его:
 
