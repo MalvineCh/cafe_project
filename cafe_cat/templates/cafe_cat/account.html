@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Аккаунт - Кафе Nutri</title>
     <style>
-        /* Стили для страницы аккаунта */
         body {
             font-family: Arial, sans-serif;
             background-color: #2c2c2c;
@@ -15,32 +14,23 @@
             background-size: cover;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
+            display: flex;
             flex-direction: column;
-
         }
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
+        .wrapper {
+            flex: 1 0 auto;
             width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный цвет */
-            z-index: 0;
         }
-
         .header {
             text-align: center;
             padding: 20px;
             background-color: #589235;
             position: relative;
         }
-
         .header h1 {
             margin: 0;
         }
-
         .buttons {
             margin: 20px 0;
             display: flex;
@@ -48,7 +38,6 @@
             gap: 10px;
             position: relative;
         }
-
         .button {
             padding: 10px 20px;
             background-color: #784627;
@@ -60,11 +49,9 @@
             text-decoration: none;
             position: relative;
         }
-
         .button:hover {
             background-color: #5a3420;
         }
-
         .account-container {
             max-width: 800px;
             margin: 20px auto;
@@ -75,81 +62,125 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             position: relative;
         }
-
         .account-container h2 {
             color: #333;
             text-align: center;
         }
-
         .account-container p, .account-container form {
             margin: 10px 0;
             padding: 5px;
             text-align: left;
         }
-
         .account-container input, .account-container button {
             padding: 8px;
             margin-top: 5px;
             border-radius: 4px;
             border: 1px solid #ccc;
         }
-
         .account-container button {
             background-color: #4CAF50;
             color: white;
             cursor: pointer;
         }
-
         .account-container button:hover {
             background-color: #45a049;
         }
-
         .account-container label {
             display: block;
         }
-
         form {
             background-color: #ffffff;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
+        footer {
+            background: #23292e;
+            color: #fff;
+            padding: 30px 0 20px 0;
+            text-align: center;
+            width: 100%;
+            z-index: 10;
+            border-top: 1px solid #444;
+            margin-top: auto;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-info {
+            text-align: left;
+            min-width: 200px;
+        }
+        .footer-btn {
+            margin: 10px 0;
+        }
+        .footer-btn a {
+            padding: 12px 32px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            background: none;
+            color: #fff;
+            font-size: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Сеть кафе Nutri Cafe</h1>
+    <div class="wrapper">
+        <div class="header">
+            <h1>Сеть кафе Nutri Cafe</h1>
+        </div>
+        <div class="buttons">
+            <a href="{% url 'cafe_cat:view_cart' %}" class="button">Корзина</a>
+            <a href="{% url 'cafe_cat:user_orders' %}" class="button">Заказы</a>
+            <a href="{% url 'cafe_cat:menu' %}" class="button">Меню</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'cafe_cat:account' %}" class="button">Аккаунт</a>
+            {% else %}
+                <a href="{% url 'cafe_cat:login' %}" class="button">Войти</a>
+                <a href="{% url 'cafe_cat:register' %}" class="button">Зарегистрироваться</a>
+            {% endif %}
+        </div>
+        <div class="account-container">
+            <h2>Добро пожаловать в ваш аккаунт!</h2>
+            {% if user.is_authenticated %}
+                <p>Логин: {{ user.username }}</p>
+                <p>Email: {{ user.email }}</p>
+                <p>Количество баллов на карте лояльности: {{ loyalty_card_points }}</p>
+                <form action="{% url 'cafe_cat:profile_update' %}" method="post">
+                    {% csrf_token %}
+                    <label for="birthday">День рождения:</label>
+                    <input type="date" id="birthday" name="birthday" value="{{ user.profile.birthday|date:'Y-m-d' }}">
+                    <button type="submit">Обновить информацию</button>
+                </form>
+                <form action="{% url 'cafe_cat:logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Выход</button>
+                </form>
+            {% else %}
+                <p>Пожалуйста, войдите в систему, чтобы просмотреть свой аккаунт.</p>
+            {% endif %}
+        </div>
     </div>
-    <div class="buttons">
-        <a href="{% url 'cafe_cat:view_cart' %}" class="button">Корзина</a>
-        <a href="{% url 'cafe_cat:user_orders' %}" class="button">Заказы</a>
-        <a href="{% url 'cafe_cat:menu' %}" class="button">Меню</a>
-        {% if user.is_authenticated %}
-            <a href="{% url 'cafe_cat:account' %}" class="button">Аккаунт</a>
-        {% else %}
-            <a href="{% url 'cafe_cat:login' %}" class="button">Войти</a>
-            <a href="{% url 'cafe_cat:register' %}" class="button">Зарегистрироваться</a>
-        {% endif %}
-    </div>
-    <div class="account-container">
-        <h2>Добро пожаловать в ваш аккаунт!</h2>
-        {% if user.is_authenticated %}
-            <p>Логин: {{ user.username }}</p>
-            <p>Email: {{ user.email }}</p>
-            <p>Количество баллов на карте лояльности: {{ loyalty_card_points }}</p>
-            <form action="{% url 'cafe_cat:profile_update' %}" method="post">
-                {% csrf_token %}
-                <label for="birthday">День рождения:</label>
-                <input type="date" id="birthday" name="birthday" value="{{ user.profile.birthday|date:'Y-m-d' }}">
-                <button type="submit">Обновить информацию</button>
-            </form>
-            <form action="{% url 'cafe_cat:logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit">Выход</button>
-            </form>
-        {% else %}
-            <p>Пожалуйста, войдите в систему, чтобы просмотреть свой аккаунт.</p>
-        {% endif %}
-    </div>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-info">
+                <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">Nutri Cafe</div>
+                <div style="font-size: 16px; margin-bottom: 4px;">+7 (777) 777-77-77</div>
+                <div style="font-size: 16px; margin-bottom: 4px;">nutricafe@mail.ru</div>
+                <div style="font-size: 14px; color: #bfbfbf;">ООО "Nutri Cafe" © 2025</div>
+            </div>
+            <div class="footer-btn">
+                <a href="{% url 'cafe_cat:support' %}">Обратиться в поддержку</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

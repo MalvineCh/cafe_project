@@ -7,7 +7,6 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-
             margin: 0;
             padding: 0;
             display: flex;
@@ -21,7 +20,6 @@
             height: 100vh;
             flex-direction: column;
         }
-
         .register-container {
             background-color: #fff;
             padding: 20px;
@@ -30,15 +28,12 @@
             width: 500px;
             text-align: center;
         }
-
         .register-container h1 {
             margin-bottom: 20px;
         }
-
         .register-form {
             width: 100%;
         }
-
         .register-form input[type="text"],
         .register-form input[type="email"],
         .register-form input[type="password"] {
@@ -49,7 +44,6 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
         }
-
         .register-button {
             background-color: #4CAF50;
             color: white;
@@ -60,7 +54,6 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-
         .register-button:hover {
             background-color: #45a049;
         }
@@ -76,12 +69,48 @@
             font-family: 'Trebuchet MS', Helvetica, sans-serif;
             text-decoration: none;
             position: relative;
-    }
+        }
         .buttons {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
             margin-top: 10px;
+        }
+        footer {
+            background: #23292e;
+            color: #fff;
+            padding: 30px 0 20px 0;
+            text-align: center;
+            width: 100%;
+            z-index: 10;
+            border-top: 1px solid #444;
+            margin-top: 40px;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-info {
+            text-align: left;
+            min-width: 200px;
+        }
+        .footer-btn {
+            margin: 10px 0;
+        }
+        .footer-btn a {
+            padding: 12px 32px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            background: none;
+            color: #fff;
+            font-size: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
         }
     </style>
 </head>
@@ -97,7 +126,7 @@
                 <a href="{% url 'cafe_cat:login' %}" class="button">Войти</a>
                 <a href="{% url 'cafe_cat:register' %}" class="button">Зарегистрироваться</a>
             {% endif %}
-    </div>
+        </div>
         <h1>Register</h1>
         <form method="post" class="register-form">
             {% csrf_token %}
@@ -105,5 +134,18 @@
             <button type="submit" class="register-button">Register</button>
         </form>
     </div>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-info">
+                <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">Nutri Cafe</div>
+                <div style="font-size: 16px; margin-bottom: 4px;">+7 (777) 777-77-77</div>
+                <div style="font-size: 16px; margin-bottom: 4px;">nutricafe@mail.ru</div>
+                <div style="font-size: 14px; color: #bfbfbf;">ООО "Nutri Cafe" © 2025</div>
+            </div>
+            <div class="footer-btn">
+                <a href="{% url 'cafe_cat:support' %}">Обратиться в поддержку</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

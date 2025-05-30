@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.http import JsonResponse, HttpResponse
 from .forms import ProfileUpdateForm, UpdateQuantityForm
-from .models import Profile, LoyaltyCard
+from .models import Profile, LoyaltyCard, MenuItem, SupportRequest
 
 def home(request):
     # Покажем избранные товары на главной странице
@@ -304,7 +304,7 @@ def place_order_selected(request):
             for cart_item in selected_cart_items:
                 OrderItem.objects.create(order=order, item=cart_item.item, quantity=cart_item.quantity)
             selected_cart_items.delete()
-            # Перенаправление на страницу заказов пользователя или подтверждения заказа
+            # Перенаправление на страницу успешного заказа
             return redirect('cafe_cat:order_success', order_id=order.id)
         elif not form.is_valid():
             return render(request, 'cafe_cat/place_order_selected.html', {
@@ -401,3 +401,13 @@ def apply_loyalty_points(request, order_id):
             messages.info(request, 'Баллы лояльности не были использованы.')
 
     return redirect('cafe_cat:order_detail', order_id=order_id)
+
+def support(request):
+    message_sent = False
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        SupportRequest.objects.create(name=name, email=email, message=message)
+        message_sent = True
+    return render(request, 'cafe_cat/support.html', {'message_sent': message_sent})

@@ -2,14 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Вход / Регистрация{% endblock %}</title>
-    {% block styles %}
+    <title>Вход / Регистрация</title>
     <style>
         .container {
             position: relative;
             width: 100%;
             height: 100vh;
-
             background-size: cover;
             background-position: center;
             color: white;
@@ -21,7 +19,7 @@
             flex-direction: column;
         }
         p {
-        font-family: 'Trebuchet MS', Helvetica, sans-serif;
+            font-family: 'Trebuchet MS', Helvetica, sans-serif;
         }
         .container::before {
             content: "";
@@ -81,7 +79,7 @@
         .button {
             padding: 10px 20px;
             margin: 10px;
-            background-color: #5a3420;;
+            background-color: #5a3420;
             color: #fff;
             border: none;
             border-radius: 5px;
@@ -103,11 +101,45 @@
             width: 10%;
             bottom: 200px;
         }
+        footer {
+            background: #23292e;
+            color: #fff;
+            padding: 30px 0 20px 0;
+            text-align: center;
+            width: 100%;
+            z-index: 10;
+            border-top: 1px solid #444;
+            margin-top: 40px;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-info {
+            text-align: left;
+            min-width: 200px;
+        }
+        .footer-btn {
+            margin: 10px 0;
+        }
+        .footer-btn a {
+            padding: 12px 32px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            background: none;
+            color: #fff;
+            font-size: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
     </style>
-    {% endblock %}
 </head>
 <body>
-    {% block content %}
     <div class="container">
         <div class="content">
             <div class="header">
@@ -137,6 +169,18 @@
             </div>
         </div>
     </div>
-    {% endblock %}
+    <footer>
+        <div class="footer-content">
+            <div class="footer-info">
+                <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">Nutri Cafe</div>
+                <div style="font-size: 16px; margin-bottom: 4px;">+7 (777) 777-77-77</div>
+                <div style="font-size: 16px; margin-bottom: 4px;">nutricafe@mail.ru</div>
+                <div style="font-size: 14px; color: #bfbfbf;">ООО "Nutri Cafe" © 2025</div>
+            </div>
+            <div class="footer-btn">
+                <a href="{% url 'cafe_cat:support' %}">Обратиться в поддержку</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

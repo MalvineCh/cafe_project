@@ -39,7 +39,12 @@ class Cart(models.Model):
     session_key = models.CharField(max_length=100, null=True, blank=True)  # Добавлено поле session_key
 
     def __str__(self):
-        return f"Корзина пользователя {self.user.username}"
+        if self.user:
+            return f"Корзина пользователя {self.user.username}"
+        elif self.session_key:
+            return f"Корзина сессии {self.session_key}"
+        else:
+            return "Корзина (неизвестный пользователь)"
 
 
 class CartItem(models.Model):
@@ -68,7 +73,10 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"Order #{self.id} by {self.user.username}"
+        if self.user:
+            return f"Order #{self.id} by {self.user.username}"
+        else:
+            return f"Order #{self.id} (аноним)"
 
 class OrderItem(models.Model):
     """ Модель элемента в заказе, связывает заказ, элемент меню и количество. """
@@ -94,7 +102,10 @@ class LoyaltyCard(models.Model):
             return True
         return False
     def __str__(self):
-        return f"Loyalty card for {self.user.username}"
+        if self.user:
+            return f"Loyalty card for {self.user.username}"
+        else:
+            return "Loyalty card (нет пользователя)"
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -103,3 +114,11 @@ class Profile(models.Model):
     loyalty_card = models.OneToOneField(LoyaltyCard, on_delete=models.CASCADE, null=True, blank=True)  # Поле loyalty_card
     def __str__(self):
         return self.user.username
+
+class SupportRequest(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return f"Обращение от {self.name} ({self.email})"

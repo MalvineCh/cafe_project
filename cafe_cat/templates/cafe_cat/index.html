@@ -15,7 +15,6 @@
             justify-content: center;
             height: 100vh;
             flex-direction: column;
-
         }
         body::before {
             content: "";
@@ -24,10 +23,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный цвет */
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 0;
         }
-
         .container {
             max-width: 800px;
             margin: 20px auto;
@@ -38,19 +36,15 @@
             text-align: center;
             position: relative;
         }
-
         h2 {
             color: #333;
             text-align: center;
         }
-
         p {
             color: #666;
             text-align: center;
-
         }
-
-       .buttons {
+        .buttons {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
@@ -62,7 +56,6 @@
             position: relative;
             font-family: 'Trebuchet MS', Helvetica, sans-serif;
         }
-
         .button {
             padding: 10px 20px;
             margin: 10px;
@@ -76,11 +69,9 @@
             text-decoration: none;
             position: relative;
         }
-
         .button:hover {
             background-color: #5a3420;
         }
-
         .account-container {
             position: relative;
             max-width: 800px;
@@ -91,20 +82,16 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             text-align: center;
-            text-align: center;
         }
-
         .account-container h2 {
             color: #333;
             text-align: center;
         }
-
         .account-container p, .account-container form {
             margin: 10px 0;
             padding: 5px;
             text-align: left;
         }
-
         .account-container input, .account-container button {
             padding: 8px;
             margin-top: 5px;
@@ -112,30 +99,64 @@
             border: 1px solid #ccc;
             text-align: center;
         }
-
         .account-container button {
             background-color: #4CAF50;
             color: white;
             cursor: pointer;
             text-align: center;
         }
-
         .account-container button:hover {
             background-color: #45a049;
             text-align: center;
         }
-
         .account-container label {
             display: block;
             text-align: center;
         }
-
         form {
             background-color: #ffffff;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             text-align: center;
+        }
+        footer {
+            background: #23292e;
+            color: #fff;
+            padding: 30px 0 20px 0;
+            text-align: center;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            z-index: 10;
+            border-top: 1px solid #444;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-info {
+            text-align: left;
+            min-width: 200px;
+        }
+        .footer-btn {
+            margin: 10px 0;
+        }
+        .footer-btn a {
+            padding: 12px 32px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            background: none;
+            color: #fff;
+            font-size: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
         }
     </style>
 </head>
@@ -174,5 +195,18 @@
             <p>Пожалуйста, войдите в систему, чтобы просмотреть свой аккаунт.</p>
         {% endif %}
     </div>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-info">
+                <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">Nutri Cafe</div>
+                <div style="font-size: 16px; margin-bottom: 4px;">+7 (777) 777-77-77</div>
+                <div style="font-size: 16px; margin-bottom: 4px;">nutricafe@mail.ru</div>
+                <div style="font-size: 14px; color: #bfbfbf;">ООО "Nutri Cafe" © 2025</div>
+            </div>
+            <div class="footer-btn">
+                <a href="{% url 'cafe_cat:support' %}">Обратиться в поддержку</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

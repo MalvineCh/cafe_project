@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,10 +13,14 @@
             background-size: cover;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
+            display: flex;
             flex-direction: column;
         }
-
+        .wrapper {
+            flex: 1 0 auto;
+            width: 100%;
+        }
         .container {
             max-width: 800px;
             margin: 20px auto;
@@ -29,16 +32,13 @@
             z-index: 1;
             text-align: center;
         }
-
         h2 {
             color: #333;
         }
-
         ul {
             list-style: none;
             padding: 0;
         }
-
         li {
             margin-bottom: 20px;
             padding: 20px;
@@ -46,33 +46,26 @@
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
-
         h3 {
             color: #333;
             margin-bottom: 10px;
         }
-
         img {
             max-width: 100%;
-
             margin-bottom: 10px;
             border-radius: 5px;
             position: center;
         }
-
         p {
             margin-bottom: 10px;
             color: #666;
         }
-
         form {
             margin-top: 10px;
         }
-
         input[type="number"] {
             width: 50px;
         }
-
         input[type="submit"] {
             background-color: #ff6600;
             color: #fff;
@@ -81,11 +74,9 @@
             border-radius: 3px;
             cursor: pointer;
         }
-
         input[type="submit"]:hover {
             background-color: #cc5500;
         }
-
         .featured {
             border: 2px solid #ff6600;
         }
@@ -101,11 +92,56 @@
             font-family: 'Trebuchet MS', Helvetica, sans-serif;
             text-decoration: none;
             position: center;
-    }
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #5a3420;
+        }
+        footer {
+            background: #23292e;
+            color: #fff;
+            padding: 30px 0 20px 0;
+            text-align: center;
+            width: 100%;
+            z-index: 10;
+            border-top: 1px solid #444;
+            margin-top: auto;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-info {
+            text-align: left;
+            min-width: 200px;
+        }
+        .footer-btn {
+            margin: 10px 0;
+        }
+        .footer-btn a {
+            padding: 12px 32px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            background: none;
+            color: #fff;
+            font-size: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="wrapper">
         <div class="buttons">
             <a href="{% url 'cafe_cat:view_cart' %}" class="button">Корзина</a>
             <a href="{% url 'cafe_cat:user_orders' %}" class="button">Заказы</a>
@@ -117,33 +153,48 @@
                 <a href="{% url 'cafe_cat:register' %}" class="button">Зарегистрироваться</a>
             {% endif %}
         </div>
-        <h2>Меню</h2>
-        {% if items %}
-            <ul>
-                {% for item in items %}
-                    <li class="{% if item.is_featured %}featured{% endif %}">
-                        <h3>{{ item.name }}</h3>
-                        {% if item.image %}
-                            <img src="{{ item.image.url }}" alt="{{ item.name }}">
-                        {% endif %}
-                        {% if item.on_sale %}
-                            <p>Цена: <del>{{ item.price }}</del> {{ item.sale_price }}</p>
-                        {% else %}
-                            <p>Цена: {{ item.price }}</p>
-                        {% endif %}
-                        <p>{{ item.description }}</p>
-                        <form action="{% url 'cafe_cat:add_to_cart' item.id %}" method="post">
-                            {% csrf_token %}
-                            <input type="number" name="quantity" value="1" min="1">
-                            <input type="submit" value="Добавить в корзину">
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>В данный момент единицы меню недоступны.</p>
-        {% endif %}
+        <div class="container">
+            <h2>Меню</h2>
+            {% if items %}
+                <ul>
+                    {% for item in items %}
+                        <li class="{% if item.is_featured %}featured{% endif %}">
+                            <h3>{{ item.name }}</h3>
+                            {% if item.image %}
+                                <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                            {% endif %}
+                            {% if item.on_sale %}
+                                <p>Цена: <del>{{ item.price }}</del> {{ item.sale_price }}</p>
+                            {% else %}
+                                <p>Цена: {{ item.price }}</p>
+                            {% endif %}
+                            <p>{{ item.description }}</p>
+                            <form action="{% url 'cafe_cat:add_to_cart' item.id %}" method="post">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="1" min="1">
+                                <input type="submit" value="Добавить в корзину">
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>В данный момент единицы меню недоступны.</p>
+            {% endif %}
+        </div>
     </div>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-info">
+                <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">Nutri Cafe</div>
+                <div style="font-size: 16px; margin-bottom: 4px;">+7 (777) 777-77-77</div>
+                <div style="font-size: 16px; margin-bottom: 4px;">nutricafe@mail.ru</div>
+                <div style="font-size: 14px; color: #bfbfbf;">ООО "Nutri Cafe" © 2025</div>
+            </div>
+            <div class="footer-btn">
+                <a href="{% url 'cafe_cat:support' %}">Обратиться в поддержку</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
 

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import transaction
 from django.utils import timezone
 from django.contrib import messages
-from .models import MenuItem, Cart, CartItem, Order, OrderItem
+from .models import MenuItem, Cart, CartItem, Order, OrderItem, SupportRequest
 
 class CartItemInline(admin.TabularInline):
     model = CartItem
@@ -56,3 +56,5 @@ from .models import LoyaltyCard
 class LoyaltyCardAdmin(admin.ModelAdmin):
     list_display = ('user', 'points')  # Отображаемые поля в списке объектов
     search_fields = ('user__username', 'user__email')  # Поля для поиска
+
+admin.site.register(SupportRequest)
